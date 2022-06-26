@@ -11,7 +11,6 @@ if sys.version_info[0] < 3:
 try:
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts mysql-connector-python")
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts ipinfo")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts bcrypt")
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts datetime")
     os.system("pip3 install -U -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts cffi pip setuptools")
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts argon2-cffi")
