@@ -353,3 +353,78 @@ def remove_content():
             db.execute("DELETE FROM content WHERE netflix_id = %s", (cid,))
             cdb.commit()
             print("Content successfully deleted!")
+
+
+def login():
+    global login_status
+    global login_username
+    login_username = input("Enter your username: ")
+    password = getpass("Enter your password: ")
+    db.execute("SELECT username, passhash FROM auth")
+    while True:
+        for i in db.fetchall():
+            c = pass_verify(i[1], password)
+            if c == argon2.exceptions.VerifyMismatchError:
+                sys.exit("Incorrect password!")
+
+            if i[0] == login_username  and c == True:
+                login_status = True
+                os.system('cls')
+                print("Login successful!")
+                print("Hello,", login_username + "!" "\n")
+                return login_status
+                break
+
+            elif i[0] != login_username or c == False:
+                login_status = False
+                sys.exit("Login failed!")
+            else:
+                login_status = False
+                sys.exit("Unknown error occured!")
+        break
+
+
+def logout():
+    global login_status
+    global login_username
+    print("You are now logged out!")
+    login_status = False
+    login_username = None
+
+
+def search_content(c):
+    db.execute("SELECT title FROM content WHERE title LIKE %s", ('%' + c + '%',))
+    return db.fetchall()
+
+
+while True:
+    print("1. Login")
+    print("2. Register")
+    print("0. Exit")
+    ch = int(input("Enter your choice: "))
+    if ch == 1:
+        login()
+    elif ch == 2:
+        register_customer()
+    elif ch == 0:
+        sys.exit("Application exited successfully!")
+    else:
+        sys.exit("Option not found!")
+    break
+
+while True:
+    if login_status != True:
+        sys.exit("Please login to continute")        
+    else:
+        print("1. Search for content using title")
+        print("2. Search for content using Netflix ID")
+        print("3. List all content")
+        print("4. Settings")
+        ch = int(input("Enter your choice: "))
+        if ch == 1:
+            name = input("Enter content title to search: ")
+            rs = search_content(name)[0]
+            for i in range(0, len(rs)):
+                print(i+1, ".", rs[i])
+            print()
+            s = int(input("Enter content number for more options:"))
