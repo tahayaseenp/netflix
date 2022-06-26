@@ -1,3 +1,4 @@
+from msilib import _directories
 import os
 import sys
 if not sys.warnoptions:
@@ -14,6 +15,7 @@ try:
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts datetime")
     os.system("pip3 install -U -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts cffi pip setuptools")
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts argon2-cffi")
+    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts termcolor")
 except:
     sys.exit("Unable to install required dependencies!")
 try:
@@ -21,6 +23,7 @@ try:
     import ipinfo
     import datetime
     import time
+    import termcolor
     from getpass import getpass
     from mysql.connector import connect
 except:
@@ -44,6 +47,20 @@ db.execute("CREATE TABLE IF NOT EXISTS order_details(order_iD BIGINT NOT NULL, c
 db.execute("CREATE TABLE IF NOT EXISTS cart(netflix_id BIGINT NOT NULL, title LONGTEXT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp LONGTEXT)")
 
+login_status = False
+
+
+actors={}
+db.execute("SELECT * FROM actors")
+for i in db.fetchall():
+    actors[i][0] = i[1]
+print(actors)
+directors = {}
+db.execute("SELECT * FROM directors")
+for i in db.fetchall():
+    directors[i][0] = i[1]
+print(directors)
+
 def record_checker(tablename, fieldname, variable):
     db.execute("SELECT {mycolumn} FROM {mytablename}".format(mycolumn=fieldname, mytablename=tablename), ())
     if variable not in db.fetchall():
@@ -58,7 +75,8 @@ def pass_hasher(password):
 
 
 def pass_verify(hash, inputpass):
-        return argon2.PasswordHasher().verify(hash, inputpass)
+    return argon2.PasswordHasher().verify(hash, inputpass)
+
 
 def add_content():
     netflix_id = int(input("Enter Netflix ID: "))
@@ -393,9 +411,22 @@ def logout():
 
 
 def search_content(c):
-    db.execute("SELECT title FROM content WHERE title LIKE %s", ('%' + c + '%',))
+    db.execute("SELECT netflix_id, title FROM content WHERE title LIKE %s", ('%' + c + '%',))
     return db.fetchall()
 
+
+def list_info(id):
+    db.execute("SELECT title, release_year, rating, type, runtime, language, actor1, actor2, actor3, actor4, director, imdb, description, (price + ((price*vat)/100)) 'price' FROM content WHERE netflix_id = %s", (id,))
+    rs = db.fetchall()
+    print()
+    print(termcolor.colored(rs[0][0].upper(), 'red', attrs=['bold', 'underline']))
+    print("Release Year: ", rs[0][1])
+    print("Rating: ", rs[0][2])
+    print("Contenet Type: ", rs[0][3])
+    print("Runtime: ", rs[0][4])
+    print("Langauge: ", rs[0][5])
+    print("Actor1: ", actors.get(rs[0][6]))
+    print()
 
 while True:
     print("1. Login")
@@ -423,8 +454,10 @@ while True:
         ch = int(input("Enter your choice: "))
         if ch == 1:
             name = input("Enter content title to search: ")
-            rs = search_content(name)[0]
+            rs = search_content(name)
             for i in range(0, len(rs)):
-                print(i+1, ".", rs[i])
+                print(str(i+1)+".", rs[i][1])
             print()
             s = int(input("Enter content number for more options:"))
+            sid = rs[s-1][0]
+            list_info(sid)
