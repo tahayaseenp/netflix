@@ -1,5 +1,15 @@
 import os
 import sys
+os.system("cls")
+print("****    ****   *********  ***********  *********  ****        ****   ***     ***")
+print("*****   ****   *********  ***********  *********  ****        ****    ***   *** ")
+print("******  ****   ***            ***      ***        ****        ****     *** ***  ")
+print("******  ****   ***            ***      ********   ****        ****      *****   ")
+print("******* ****   ********       ***      ***        ****        ****      ****    ")
+print("**** *******   ***            ***      ***        ****        ****     ******   ")
+print("****  ******   ***            ***      ***        ****        ****    ********  ")
+print("****   *****   *********                          **********  ****   ****  **** ")
+print("****    ****                                                        ****    ****")
 if not sys.warnoptions:
     import warnings
     warnings.simplefilter("ignore")
@@ -39,6 +49,7 @@ try:
 
 except:
     sys.exit("Unable to import required dependencies")
+
 
 ip_details = ipinfo.getHandler("eb85c6b947bbc4").getDetails()
 
@@ -203,6 +214,7 @@ def record_checker(tablename, fieldname, variable):
     if variable not in db.fetchall():
         print("Does not exist!")
         return False
+
     else:
         return True
 
@@ -307,8 +319,9 @@ def edit_director():
 def edit_content():
     nid = input("Enter Netflix ID: ")
     db.execute("SELECT title FROM content WHERE netflix_id = %s", (nid,))
+
     print("Content title: ", db.fetchall()[0])
-    type = input("Enter content type (Movie OR TV Show): ")
+
     print("What would you like to edit?")
     print("1. Content Title     		8.  Actor 4")
     print("2. Content Type 				9.  Director")
@@ -317,159 +330,190 @@ def edit_content():
     print("5. Actor 1 					12. Runtime")
     print("6. Actor 2 					13. Description")
     print("7. Actor 3 					14. Language")
+
     c = input("Enter your choice: ")
+
     if c == 1:
         title = input("Enter content title: ")
+
         if title:
             db.execute("UPDATE content SET title = %s WHERE netflix_id = %s", (title, nid))
             cdb.commit()
             print("Title changed successfully!")
+
         else:
             print("No title provided!")
         
     elif c == 2:
         type = input("Enter content type: ")
+
         if type:
             db.execute("UPDATE content SET type = %s WHERE netflix_id = %s", (type, nid))
             cdb.commit()
             print("Type changed successfully!")
+
         else:
             print("No type provided!")
             
     elif c == 3:
         rating = input("Enter content PG Rating: ")
+
         if rating:
             db.execute("UPDATE content SET rating = %s WHERE netflix_id = %s", (rating, nid))
             cdb.commit()
             print("Rating changed successfully!")
+
         else:
             print("No rating provided!")
 		
     elif c == 4:
         release_year = input("Enter content release year: ")
+
         if release_year:
             db.execute("UPDATE content SET release_year = %s WHERE netflix_id = %s", (release_year, nid))
             cdb.commit()
             print("Release year changed successfully!")
+
         else:
             print("No title provided!")
             
     elif c == 5:
         actor1 = input("Enter Actor 1: ")
+
         if actor1:
             rc = record_checker('actors', 'id', actor1)
             db.execute("UPDATE content SET actor1 = %s WHERE netflix_id = %s",
                        (actor1, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Actor 1 changed successfully!")
+
         else:
             print("No actor provided!")
             
     elif c == 6:
         actor2 = input("Enter Actor 2: ")
+
         if actor2:
             rc = record_checker('actors', 'id', actor2)
             db.execute("UPDATE content SET actor2 = %s WHERE netflix_id = %s",
                        (actor2, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Actor 2 changed successfully!")
+
         else:
             print("No actor provided!")
             
     elif c == 7:
         actor3 = input("Enter Actor 3: ")
+
         if actor3:
             rc = record_checker('actors', 'id', actor3)
             db.execute("UPDATE content SET actor3 = %s WHERE netflix_id = %s",
                        (actor3, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Actor 3 changed successfully!")
+
         else:
             print("No actor provided!")
             
     elif c == 8:
         actor4 = input("Enter Actor 4: ")
+
         if actor4:
             rc = record_checker('actors', 'id', actor4)
             db.execute("UPDATE content SET actor4 = %s WHERE netflix_id = %s",
                        (actor4, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Actor 4 changed successfully!")
+
         else:
             print("No actor provided!")
             
     elif c == 9:
         director = input("Enter Director: ")
+
         if director:
             rc = record_checker('directors', 'id', director)
             db.execute("UPDATE content SET director = %s WHERE netflix_id = %s",
                        (director, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Director changed successfully!")
+
         else:
             print("No director provided!")
             
     elif c == 10:
         category = input("Enter content Title: ")
+
         if category:
             db.execute("UPDATE content SET category = %s WHERE netflix_id = %s", (category, nid))
             cdb.commit()
             print("Category changed successfully!")
+
         else:
             print("No category provided!")
             
     elif c == 11:
         rating = input("Enter IMDB rating: ")
+
         if rating:
             db.execute("UPDATE content SET rating = %s WHERE netflix_id = %s", (rating, nid))
             cdb.commit()
             print("IMDB rating changed successfully!")
+
         else:
             print("No rating provided!")
             
     elif c == 12:
         runtime = int(input("Enter content length in minutes: "))
+
         if runtime:
             runtime += "min"
             db.execute("UPDATE content SET runtime = %s WHERE netflix_id = %s", (runtime, nid))
             cdb.commit()
-            print("content length changed successfully!")
+            print("Content length changed successfully!")
+
         else:
             print("No length provided!")
             
     elif c == 13:
         desc = input("Enter content description: ")
+
         if desc:
             db.execute("UPDATE content SET desc = %s WHERE netflix_id = %s", (desc, nid))
             cdb.commit()
             print("Description changed successfully!")
+
         else:
             print("No description provided!")
             
     elif c == 14:
         lang = input("Enter language: ")
+
         if lang:
             db.execute("UPDATE content SET language = %s WHERE netflix_id = %s", (lang, nid))
             cdb.commit()
             print("Language changed successfully!")
+
         else:
             print("No language provided!")
-        cdb.commit()
-        print("Director successfully edited")
 
 
 def remove_actor():
     x = input("WARNING! YOU ARE ATTEMTPING TO REMOVE RECORDS FROM THE DATABASE! TYPE 'I know what I'm doing' (Case Sensitive) TO CONTINUE: ")
     if x != "I know what I'm doing":
         sys.exit("Wrong phrase entered!")
+
     else:
         acn = input("Enter actor ID: ")
         db.execute("SELECT name FROM actors WHERE id = %s", (acn,))
         print("Actor name: ", db.fetchall()[0])
         print("Would you like to delete this actor? NOTE: THIS ACTION IS IRREVERSIBLE")
         cfm = input("Type 'I Confirm' (Case Sensitive) to continue: ")
+
         if cfm != "I Confirm":
             sys.exit("Wrong phrase entered!")
+
         else:
             db.execute("DELETE FROM actors WHERE id = %s", (acn,))
             cdb.commit()
@@ -480,14 +524,17 @@ def remove_director():
     x = input("WARNING! YOU ARE ATTEMTPING TO REMOVE RECORDS FROM THE DATABASE! TYPE 'I know what I'm doing' (Case Sensitive) TO CONTINUE: ")
     if x != "I know what I'm doing":
         sys.exit("Wrong phrase entered!")
+
     else:
         drn = input("Enter director ID: ")
         db.execute("SELECT name FROM directors WHERE id = %s", (drn,))
         print("Director name: ", db.fetchall()[0])
         print("Would you like to delete this director? NOTE: THIS ACTION IS IRREVERSIBLE")
         cfm = input("Type 'I Confirm' (Case Sensitive) to continue: ")
+
         if cfm != "I Confirm":
             sys.exit("Wrong phrase entered!")
+
         else:
             db.execute("DELETE FROM directord WHERE id = %s", (drn,))
             cdb.commit()
@@ -498,14 +545,17 @@ def remove_content():
     x = input("WARNING! YOU ARE ATTEMTPING TO REMOVE RECORDS FROM THE DATABASE! TYPE 'I know what I'm doing' (Case Sensitive) TO CONTINUE: ")
     if x != "I know what I'm doing":
         sys.exit("Wrong phrase entered!")
+
     else:
         cid = input("Enter content ID: ")
         db.execute("SELECT name FROM content WHERE netflix_id = %s", (cid,))
         print("Content name: ", db.fetchall()[0])
         print("Would you like to delete this actor? NOTE: THIS ACTION IS IRREVERSIBLE")
         cfm = input("Type 'I Confirm' (Case Sensitive) to continue: ")
+        
         if cfm != "I Confirm":
             sys.exit("Wrong phrase entered!")
+
         else:
             db.execute("DELETE FROM content WHERE netflix_id = %s", (cid,))
             cdb.commit()
@@ -519,9 +569,12 @@ def login():
     password = getpass("Enter your password: ")
     db.execute("SELECT username, passhash FROM auth")
     while True:
+
         for i in db.fetchall():
-            c = pass_verify(i[1], password)
-            if c == argon2.exceptions.VerifyMismatchError:
+
+            try:
+                c = pass_verify(i[1], password)
+            except argon2.exceptions.VerifyMismatchError:
                 sys.exit("Incorrect password!")
 
             if i[0] == login_username and c == True:
@@ -534,10 +587,12 @@ def login():
 
             elif i[0] != login_username or c == False:
                 login_status = False
-                sys.exit("Login failed!")
+                sys.exit("Incorrect username!")
+
             else:
                 login_status = False
                 sys.exit("Unknown error occured!")
+
         break
 
 
@@ -551,23 +606,31 @@ def logout():
 
 def search_content(c):
     db.execute("SELECT netflix_id, title FROM content WHERE title LIKE %s", ('%' + c + '%',))
-    return db.fetchall()
+    if db.fetchall() == []:
+        return "No content found!"
+    else:
+        return db.fetchall()
 
 
 def list_info(id):
     db.execute("SELECT title, release_year, rating, type, runtime, language, actor1, actor2, actor3, actor4, director, imdb, description, (price + ((price*vat)/100)) FROM content WHERE netflix_id = %s", (id,))
     rs = db.fetchall()[0]
     print()
+
     ac1 = actors.get(rs[6])
     ac2 = '| ' + actors.get(rs[7]) if actors.get(rs[7]) != "NULL" else ''
     ac3 = '| ' + actors.get(rs[8]) if actors.get(rs[8]) != "NULL" else ''
     ac4 = '| ' + actors.get(rs[9]) if actors.get(rs[9]) != "NULL" else ''
+
     if rs[7] == "NULL":
         ac2 = ac3 = ac4 = ''
+
     elif rs[8] == "NULL":
         ac3 = ac4 = ''
+
     elif rs[9] == "NULL":
         ac4 = ''
+
     print(termcolor.colored(rs[0].upper(), 'red', attrs=['bold', 'underline']))
     print("Release Year:", rs[1])
     print("Rating:", rs[2])
@@ -589,57 +652,159 @@ while True:
     ch = int(input("Enter your choice: "))
     if ch == 1:
         login()
+
     elif ch == 2:
         register_customer()
+
     elif ch == 0:
         sys.exit("Application exited successfully!")
+
     else:
         sys.exit("Option not found!")
+
     break
 
 while True:
     if login_status != True:
         sys.exit("Please login to continute")        
     else:
-        print("1. Search for content using title")
-        print("2. Search for content using Netflix ID")
-        print("3. List all content")
-        print("4. Settings")
-        ch = int(input("Enter your choice: "))
-        if ch == 1:
-            name = input("Enter content title to search: ")
-            rs = search_content(name)
-            for i in range(0, len(rs)):
-                print(str(i+1)+".", rs[i][1])
-            print()
-            s = int(input("Enter content number for more options:"))
-            sid = rs[s-1][0]
-            list_info(sid)
+        print("1. Search for content")
+        print("2. View Cart")
+        print("3. Accounnt settings")
 
-            print("1. Buy now!")
-            print("2. Add to cart")
-            co = int(input("Enter your choice: "))
-            if co == 1:
+        sch = int(input("Enter your choice: "))
+
+        if sch == 1:
+            print("1. Search for content using title")
+            print("2. Search for content using Netflix ID")
+            print("3. List all content")
+            
+            ch = int(input("Enter your choice: "))
+            if ch == 1:
+                while True:
+                    name = input("Enter content title to search: ")
+                    rs = search_content(name)
+                    if rs == "No content found!":
+                        print("No content found!")
+                        print()
+                        break
+                    for i in range(0, len(rs)):
+                        print(str(i+1)+".", rs[i][1])
+                    print()
+                    s = int(input("Enter content number for more options:"))
+                    sid = rs[s-1][0]
+                    list_info(sid)
+
+                    print("1. Buy now!")
+                    print("2. Add to cart")
+                    co = int(input("Enter your choice: "))
+                    if co == 1:
+                        print()
+                        # buy_now()
+
+                    elif co == 2:
+                        db.execute("INSERT INTO cart VALUES(%s, %s)", (sid, rs[s-1][1]))
+                        cdb.commit()
+                        print("Added to cart!")
+                        print()
+
+                    elif co == 0:
+                        break
+
+            elif ch == 2:
+                while True:
+                    nid = int(input("Enter Netflix ID: "))
+                    db.execute("SELECT netflix_id, title FROM content WHERE netflix_id = %s", (nid,))
+                    rs = db.fetchall()
+                    if rs == []:
+                        print("No content found!")
+                        print()
+                        break
+                    else:
+                        rs = rs[0]
+                    list_info(nid)
+
+                    print("1. Buy now!")
+                    print("2. Add to cart")
+                    ct = int(input("Enter your choice: "))
+                    if ct == 1:
+                        print()
+                        # buy_now()
+                    
+                    elif ct == 2:
+                        db.execute("INSERT INTO cart VALUES(%s, %s)", (nid, rs[1]))
+                        cdb.commit()
+                        print("Added to cart!")
+                        print()
+
+                    elif ct == 0:
+                        break
+                
+            elif ch == 3:
+                while True:
+                    db.execute("SELECT netflix_id, title FROM content ORDER BY title")
+                    rs = db.fetchall()
+                    print()
+                    for i in range(0, len(rs)):
+                        print(str(i+1)+".", rs[i][1])
+                    print()
+
+                    s = int(input("Enter content number for more options:"))
+                    if s == 0:
+                        print()
+                        break
+                    sid = rs[s-1][0]
+                    list_info(sid)
+                    print("1. Buy now!")
+                    print("2. Add to cart")
+                    cr = int(input("Enter your choice: "))
+                    if cr == 1:
+                        print()
+                        # buy_now()
+                
+                    elif cr == 2:
+                        db.execute("INSERT INTO cart VALUES(%s, %s)", (sid, rs[s-1][1]))
+                        cdb.commit()
+                        print("Added to cart!")
+                        print()
+
+                    elif cr == 0:
+                        break
+            
+            elif ch == 0:
+                continue
+ 
+        elif sch == 2:
+            while True:
+                print("CART")
+                db.execute("SELECT DISTINCT * FROM cart")
+                rs = db.fetchall()
+
+                for i in range(0, len(rs)):
+                    print(str(i+1)+".", rs[i][1])
                 print()
-                buy_now()
-            elif co == 2:
-                db.execute("INSERT INTO cart VALUES(%s, %s)", (sid, rs[s-1][1]))
-                cdb.commit()
-                print("Added to cart!", end="\n")
 
-        elif ch == 2:
-            netflix_id = int(input("Enter Netflix ID: "))
-            db.execute("SELECT netflix_id, title FROM content WHERE netflix_id = %s", (netflix_id,))
-            rs = db.fetchall()[0]
-            list_info(netflix_id)
+                print("1. View movie details")
+                print("2. Empty cart")
 
-            print("1. Buy now!")
-            print("2. Add to cart")
-            ct = int(input("Enter your choice: "))
-            if ct == 1:
-                print()
-                buy_now()
-            elif ct == 2:
-                db.execute("INSERT INTO cart VALUES(%s, %s)", (netflix_id, rs[1]))
-                cdb.commit()
-                print("Added to cart!", end="\n")
+                s = int(input("Enter your choice:"))
+                if s == 1:
+                    sid = rs[s-1][0]
+                    list_info(sid)
+
+                    c = int(input("Press 1 to buy now: "))
+
+                    if c == 1:
+                        print()
+                        # buy_now()
+
+                elif s == 2:
+                    db.execute("DELETE FROM cart")
+                    cdb.commit()
+                    break
+
+                elif s == 0:
+                    break
+
+        elif ch == 0:
+            continue
