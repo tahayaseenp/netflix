@@ -54,14 +54,12 @@ for i in db.fetchall():
     key = i[0]
     value = i[1]
     actors.update({key: value})
-print(actors)
 directors = {}
 db.execute("SELECT * FROM directors")
 for i in db.fetchall():
     key = i[0]
     value = i[1]
     directors.update({key: value})
-print(directors)
 
 
 def record_checker(tablename, fieldname, variable):
@@ -112,8 +110,9 @@ def add_content():
     runtime += "min"
     description = input("Enter content description: ")
     language = input("Enter content language: ")
-    db.execute("INSERT INTO actors VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4,
-               director, category, imdb, runtime, description, language)) if rc1 == True and rc2 == True and rc3 == True and rc4 == True and rc5 == True else print("Record not added!")
+    price = float(input("Enter content price: "))
+    vat = float(input("Enter content VAT: "))
+    db.execute("INSERT INTO content(netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)) if rc1 == True and rc2 == True and rc3 == True and rc4 == True and rc5 == True else print("Record not added!")
     cdb.commit()
 
 
@@ -139,7 +138,7 @@ def register_customer():
     password = getpass("Enter your password: ")
     passhash = pass_hasher(password)
     db.execute("INSERT INTO customers (name, email, phone_number, username, country_code) VALUES(%s, %s, %s, %s, %s)",
-               (name, email, phone_number, username, """ip_details.country"""))
+               (name, email, phone_number, username, ip_details.country))
     cdb.commit()
     db.execute("INSERT INTO auth VALUES(%s, %s)", (username, passhash))
     cdb.commit()
@@ -174,8 +173,8 @@ def edit_content():
     print("Content title: ", db.fetchall()[0])
     type = input("Enter content type (Movie OR TV Show): ")
     print("What would you like to edit?")
-    print("1. Content Title     		8. Actor 4")
-    print("2. Content Type 				9. Director")
+    print("1. Content Title     		8.  Actor 4")
+    print("2. Content Type 				9.  Director")
     print("3. Content PG Rating 		10. Content category")
     print("4. Content release year		11. IMDB Rating")
     print("5. Actor 1 					12. Runtime")
@@ -419,26 +418,26 @@ def search_content(c):
 
 
 def list_info(id):
-    db.execute("SELECT title, release_year, rating, type, runtime, language, actor1, actor2, actor3, actor4, director, imdb, description, (price + ((price*vat)/100)) 'price' FROM content WHERE netflix_id = %s", (id,))
+    db.execute("SELECT title, release_year, rating, type, runtime, language, actor1, actor2, actor3, actor4, director, imdb, description, (price + ((price*vat)/100)) FROM content WHERE netflix_id = %s", (id,))
     rs = db.fetchall()[0]
     print()
-    ac1 = rs[6]
-    ac2 = rs[7]
-    ac3 = rs[8]
-    ac4 = rs[9]
+    ac1 = actors.get(rs[6])
+    ac2 = '| ' + actors.get(rs[7]) if actors.get(rs[7]) != "NULL" else ''
+    ac3 = '| ' + actors.get(rs[8]) if actors.get(rs[8]) != "NULL" else ''
+    ac4 = '| ' + actors.get(rs[9]) if actors.get(rs[9]) != "NULL" else ''
     if rs[7] == "NULL":
-        ac2 = ac3 = ac4 = None
+        ac2 = ac3 = ac4 = ''
     elif rs[8] == "NULL":
-        ac3 = ac4 = None
+        ac3 = ac4 = ''
     elif rs[9] == "NULL":
-        ac4 = None
+        ac4 = ''
     print(termcolor.colored(rs[0].upper(), 'red', attrs=['bold', 'underline']))
-    print("Release Year: ", rs[1])
+    print("Release Year:", rs[1])
     print("Rating:", rs[2])
     print("Contenet Type:", rs[3])
     print("Runtime:", rs[4])
     print("Langauge:", rs[5])
-    print("Starring:", ac1, )
+    print("Starring:", ac1, ac2, ac3, ac4)
     print("Directors:", directors.get(rs[10]))
     print("IMDB Rating:", rs[11])
     print("Description:", rs[12])
@@ -485,3 +484,6 @@ while True:
             co = int(input("Enter your choice: "))
             if co == 1:
                 print()
+                #TODO
+            elif co == 2:
+                db.execute("INSERT INTO cart VALUES(%s, %s)", (sid, rs[s-1][1]))
