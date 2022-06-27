@@ -1,3 +1,4 @@
+from cmath import e
 import os
 import sys
 os.system("cls")
@@ -42,6 +43,7 @@ try:
     import urllib.parse
     import urllib.request
     import lxml.html
+    import random
     from getpass import getpass
     from mysql.connector import connect
     from email.mime.multipart import MIMEMultipart
@@ -227,6 +229,10 @@ def pass_verify(hash, inputpass):
     return argon2.PasswordHasher().verify(hash, inputpass)
 
 
+def gen_otp():
+    return str(int(random.random()*1000000))
+
+
 def add_content():
     netflix_id = int(input("Enter Netflix ID: "))
     title = input("Enter content title: ")
@@ -299,7 +305,7 @@ def register_customer():
 def edit_actor():
     acn = input("Enter actor ID: ")
     db.execute("SELECT name FROM actors WHERE id = %s", (acn,))
-    print("Actor name: ", db.fetchall()[0])
+    print("Actor name: ", db.fetchall()[0][0])
     new = input("Enter new actor name: ")
     db.execute("UPDATE actors SET name = %s WHERE id = %s", (new, acn)) if acn else print("Actor editing failed!")
     cdb.commit()
@@ -309,7 +315,7 @@ def edit_actor():
 def edit_director():
     drn = input("Enter director ID: ")
     db.execute("SELECT name FROM directors WHERE id = %s", (drn,))
-    print("Director name: ", db.fetchall()[0])
+    print("Director name: ", db.fetchall()[0][0])
     new = input("Enter new director name: ")
     db.execute("UPDATE directors SET name = %s WHERE id = %s", (new, drn)) if drn else print("Director editing failed!")
     cdb.commit()
@@ -320,7 +326,7 @@ def edit_content():
     nid = input("Enter Netflix ID: ")
     db.execute("SELECT title FROM content WHERE netflix_id = %s", (nid,))
 
-    print("Content title: ", db.fetchall()[0])
+    print("Content title: ", db.fetchall()[0][0])
 
     print("What would you like to edit?")
     print("1. Content Title     		8.  Actor 4")
@@ -507,7 +513,7 @@ def remove_actor():
     else:
         acn = input("Enter actor ID: ")
         db.execute("SELECT name FROM actors WHERE id = %s", (acn,))
-        print("Actor name: ", db.fetchall()[0])
+        print("Actor name: ", db.fetchall()[0][0])
         print("Would you like to delete this actor? NOTE: THIS ACTION IS IRREVERSIBLE")
         cfm = input("Type 'I Confirm' (Case Sensitive) to continue: ")
 
@@ -528,7 +534,7 @@ def remove_director():
     else:
         drn = input("Enter director ID: ")
         db.execute("SELECT name FROM directors WHERE id = %s", (drn,))
-        print("Director name: ", db.fetchall()[0])
+        print("Director name: ", db.fetchall()[0][0])
         print("Would you like to delete this director? NOTE: THIS ACTION IS IRREVERSIBLE")
         cfm = input("Type 'I Confirm' (Case Sensitive) to continue: ")
 
@@ -549,7 +555,7 @@ def remove_content():
     else:
         cid = input("Enter content ID: ")
         db.execute("SELECT name FROM content WHERE netflix_id = %s", (cid,))
-        print("Content name: ", db.fetchall()[0])
+        print("Content name: ", db.fetchall()[0][0])
         print("Would you like to delete this actor? NOTE: THIS ACTION IS IRREVERSIBLE")
         cfm = input("Type 'I Confirm' (Case Sensitive) to continue: ")
         
@@ -671,10 +677,11 @@ while True:
         print("1. Search for content")
         print("2. View Cart")
         print("3. Accounnt settings")
+        print("0. Exit")
 
-        sch = int(input("Enter your choice: "))
+        sch = input("Enter your choice: ")
 
-        if sch == 1:
+        if sch == '1':
             print("1. Search for content using title")
             print("2. Search for content using Netflix ID")
             print("3. List all content")
@@ -774,7 +781,7 @@ while True:
             elif ch == 0:
                 continue
  
-        elif sch == 2:
+        elif sch == '2':
             while True:
                 print("CART")
                 db.execute("SELECT DISTINCT * FROM cart")
@@ -805,6 +812,80 @@ while True:
 
                 elif s == 0:
                     break
+        
+        elif sch == 'admin':
+            otp = gen_otp()
+            send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP", "Here's your Netflix Admin OTP<br><br>" + "<b>" + otp + "</b>" + "<br><br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
+            input_otp = int(input("Enter OTP: "))
+            if str(input_otp) == otp:
+                print("Access granted")
+            else:
+                sys.exit("Access denied - Incorrect OTP")
 
-        elif ch == 0:
-            continue
+            print("1. Add Functions")
+            print("2. Edit Functions")
+            print("3. Delete functions")
+            a = int(input("Enter your choice: "))
+            if a == 1:
+                while True:
+                    print("1. Add Content")
+                    print("2. Add Actors")
+                    print("3. Add Direcors")
+                    print("0. Exit")
+                    
+                    b = int(input("Enter your choice: "))
+                    if b == 1:
+                        add_content()
+                    
+                    elif b == 2:
+                        add_actor()
+
+                    elif b == 3:
+                        add_director
+
+                    elif b == 0:
+                        break
+            
+            elif a == 2:
+                while True:
+                    print("1. Edit Content")
+                    print("2. Edit Actors")
+                    print("3. Edit Direcors")
+                    print("0. Exit")
+
+                    c = int(input("Enter your choice: "))
+                    if c == 1:
+                        edit_content()
+
+                    elif c == 2:
+                        edit_actor()
+                    
+                    elif c == 3:
+                        edit_director()
+
+                    elif c == 0:
+                        break
+
+            elif a == 3:
+                while True:
+                    print("1. Delete Content")
+                    print("2. Delete Actors")
+                    print("3. Delete Direcors")
+                    print("0. Exit")
+
+                    d = int(input("Enter your choice: "))
+                    if d == 1:
+                        remove_content()
+
+                    elif d == 2:
+                        remove_actor()
+                    
+                    elif d == 3:
+                        remove_director()
+
+                    elif d == 0:
+                        break
+
+
+        elif sch == '0':
+            sys.exit("Application exited successfully!")
