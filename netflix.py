@@ -25,19 +25,33 @@ try:
     import datetime
     import time
     import termcolor
+    import base64
+    import imaplib
+    import json
+    import smtplib
+    import urllib.parse
+    import urllib.request
+    import lxml.html
     from getpass import getpass
     from mysql.connector import connect
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
 except:
     sys.exit("Unable to import required dependencies")
+
 ip_details = ipinfo.getHandler("eb85c6b947bbc4").getDetails()
+
 cdb = connect(host="localhost", user="root", password="17102005")
 db = cdb.cursor()
 db.execute("CREATE DATABASE IF NOT EXISTS netflix")
 cdb.commit()
 db.close()
 cdb.close()
+
 cdb = connect(host="localhost", user="root", password="17102005", database="netflix")
 db = cdb.cursor()
+
 db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT NULL, title LONGTEXT NOT NULL, type VARCHAR(10) NOT NULL, rating VARCHAR(15) NOT NULL, release_year YEAR NOT NULL, actor1 CHAR(5) NOT NULL, actor2 CHAR(5) NOT NULL, actor3 CHAR(5) NOT NULL, actor4 CHAR(5) NOT NULL, director CHAR(5) NOT NULL, category VARCHAR(255) NOT NULL, imdb VARCHAR(20) NOT NULL, runtime VARCHAR(50) NOT NULL, description LONGTEXT NOT NULL, language VARCHAR(255) NOT NULL, price FLOAT NOT NULL, VAT FLOAT NOT NULL DEFAULT 5.0)")
 db.execute("CREATE TABLE IF NOT EXISTS actors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
 db.execute("CREATE TABLE IF NOT EXISTS directors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
@@ -47,19 +61,141 @@ db.execute("CREATE TABLE IF NOT EXISTS orders(id BIGINT AUTO_INCREMENT PRIMARY K
 db.execute("CREATE TABLE IF NOT EXISTS order_details(order_iD BIGINT NOT NULL, content_id BIGINT NOT NULL, amount BIGINT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS cart(netflix_id BIGINT NOT NULL, title LONGTEXT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp LONGTEXT)")
+
+GOOGLE_ACCOUNTS_BASE_URL = 'https://accounts.google.com'
+REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+
+GOOGLE_CLIENT_ID = '883495880858-pa24r44unorsao9if8gsvbcqrr2j44bc.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = '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'
+GOOGLE_REFRESH_TOKEN = '1//031ss_eVdJF8XCgYIARAAGAMSNwF-L9Ircikq_lAO5vUoc5FiQJnFYi4L7-6ZeZ2F-ZfW476Iu-K1KCx-tkFbpeYaMVf1RXFAckc'
+
 login_status = False
+
 actors = {}
 db.execute("SELECT * FROM actors")
 for i in db.fetchall():
     key = i[0]
     value = i[1]
     actors.update({key: value})
+
 directors = {}
 db.execute("SELECT * FROM directors")
 for i in db.fetchall():
     key = i[0]
     value = i[1]
     directors.update({key: value})
+
+
+# EMAIL DEFINITION START
+def command_to_url(command):
+    return '%s/%s' % (GOOGLE_ACCOUNTS_BASE_URL, command)
+
+
+def url_escape(text):
+    return urllib.parse.quote(text, safe='~-._')
+
+
+def url_unescape(text):
+    return urllib.parse.unquote(text)
+
+
+def url_format_params(params):
+    param_fragments = []
+    for param in sorted(params.items(), key=lambda x: x[0]):
+        param_fragments.append('%s=%s' % (param[0], url_escape(param[1])))
+    return '&'.join(param_fragments)
+
+
+def generate_permission_url(client_id, scope='https://mail.google.com/'):
+    params = {}
+    params['client_id'] = client_id
+    params['redirect_uri'] = REDIRECT_URI
+    params['scope'] = scope
+    params['response_type'] = 'code'
+    return '%s?%s' % (command_to_url('o/oauth2/auth'), url_format_params(params))
+
+
+def call_authorize_tokens(client_id, client_secret, authorization_code):
+    params = {}
+    params['client_id'] = client_id
+    params['client_secret'] = client_secret
+    params['code'] = authorization_code
+    params['redirect_uri'] = REDIRECT_URI
+    params['grant_type'] = 'authorization_code'
+    request_url = command_to_url('o/oauth2/token')
+    response = urllib.request.urlopen(request_url, urllib.parse.urlencode(params).encode('UTF-8')).read().decode('UTF-8')
+    return json.loads(response)
+
+
+def call_refresh_token(client_id, client_secret, refresh_token):
+    params = {}
+    params['client_id'] = client_id
+    params['client_secret'] = client_secret
+    params['refresh_token'] = refresh_token
+    params['grant_type'] = 'refresh_token'
+    request_url = command_to_url('o/oauth2/token')
+    response = urllib.request.urlopen(request_url, urllib.parse.urlencode(params).encode('UTF-8')).read().decode('UTF-8')
+    return json.loads(response)
+
+
+def generate_oauth2_string(username, access_token, as_base64=False):
+    auth_string = 'user=%s\1auth=Bearer %s\1\1' % (username, access_token)
+    if as_base64:
+        auth_string = base64.b64encode(auth_string.encode('ascii')).decode('ascii')
+    return auth_string
+
+
+def test_imap(user, auth_string):
+    imap_conn = imaplib.IMAP4_SSL('imap.gmail.com')
+    imap_conn.debug = 4
+    imap_conn.authenticate('XOAUTH2', lambda x: auth_string)
+    imap_conn.select('INBOX')
+
+
+def test_smpt(user, base64_auth_string):
+    smtp_conn = smtplib.SMTP('smtp.gmail.com', 587)
+    smtp_conn.set_debuglevel(True)
+    smtp_conn.ehlo('test')
+    smtp_conn.starttls()
+    smtp_conn.docmd('AUTH', 'XOAUTH2 ' + base64_auth_string)
+
+
+def get_authorization(google_client_id, google_client_secret):
+    scope = "https://mail.google.com/"
+    print('Navigate to the following URL to auth:', generate_permission_url(google_client_id, scope))
+    authorization_code = input('Enter verification code: ')
+    response = call_authorize_tokens(google_client_id, google_client_secret, authorization_code)
+    return response['refresh_token'], response['access_token'], response['expires_in']
+
+
+def refresh_authorization(google_client_id, google_client_secret, refresh_token):
+    response = call_refresh_token(google_client_id, google_client_secret, refresh_token)
+    return response['access_token'], response['expires_in']
+
+
+def send_mail(fromaddr, toaddr, subject, message):
+    access_token, expires_in = refresh_authorization(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN)
+    auth_string = generate_oauth2_string(fromaddr, access_token, as_base64=True)
+
+    msg = MIMEMultipart('related')
+    msg['Subject'] = subject
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg.preamble = 'This is a multi-part message in MIME format.'
+    msg_alternative = MIMEMultipart('alternative')
+    msg.attach(msg_alternative)
+    part_text = MIMEText(lxml.html.fromstring(message).text_content().encode('utf-8'), 'plain', _charset='utf-8')
+    part_html = MIMEText(message.encode('utf-8'), 'html', _charset='utf-8')
+    msg_alternative.attach(part_text)
+    msg_alternative.attach(part_html)
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.ehlo(GOOGLE_CLIENT_ID)
+    server.starttls()
+    server.docmd('AUTH', 'XOAUTH2 ' + auth_string)
+    server.sendmail(fromaddr, toaddr, msg.as_string())
+    server.quit()
+
+# EMAIL DEFINITION END
 
 
 def record_checker(tablename, fieldname, variable):
@@ -112,7 +248,8 @@ def add_content():
     language = input("Enter content language: ")
     price = float(input("Enter content price: "))
     vat = float(input("Enter content VAT: "))
-    db.execute("INSERT INTO content(netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)) if rc1 == True and rc2 == True and rc3 == True and rc4 == True and rc5 == True else print("Record not added!")
+    db.execute("INSERT INTO content(netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+               (netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)) if rc1 == True and rc2 == True and rc3 == True and rc4 == True and rc5 == True else print("Record not added!")
     cdb.commit()
 
 
@@ -444,7 +581,8 @@ def list_info(id):
     print("Price: AED", rs[13])
     print()
 
-
+send_mail('tp.cs50test@gmail.com', 'tahayparker@gmail.com', 'Your Netflix OTP', "123456")
+time.sleep(10)
 while True:
     print("1. Login")
     print("2. Register")
@@ -484,6 +622,25 @@ while True:
             co = int(input("Enter your choice: "))
             if co == 1:
                 print()
-                #TODO
+                buy_now()
             elif co == 2:
                 db.execute("INSERT INTO cart VALUES(%s, %s)", (sid, rs[s-1][1]))
+                cdb.commit()
+                print("Added to cart!", end="\n")
+
+        elif ch == 2:
+            netflix_id = int(input("Enter Netflix ID: "))
+            db.execute("SELECT netflix_id, title FROM content WHERE netflix_id = %s", (netflix_id,))
+            rs = db.fetchall()[0]
+            list_info(netflix_id)
+
+            print("1. Buy now!")
+            print("2. Add to cart")
+            ct = int(input("Enter your choice: "))
+            if ct == 1:
+                print()
+                buy_now()
+            elif ct == 2:
+                db.execute("INSERT INTO cart VALUES(%s, %s)", (netflix_id, rs[1]))
+                cdb.commit()
+                print("Added to cart!", end="\n")
