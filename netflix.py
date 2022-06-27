@@ -1,4 +1,3 @@
-from msilib import _directories
 import os
 import sys
 if not sys.warnoptions:
@@ -9,6 +8,7 @@ if sys.version_info[0] < 3:
     print("https://www.python.org/downloads/")
     input("Press any key to exit!")
     sys.exit("Python3 not installed")
+
 try:
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts mysql-connector-python")
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts ipinfo")
@@ -18,6 +18,7 @@ try:
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts termcolor")
 except:
     sys.exit("Unable to install required dependencies!")
+
 try:
     import argon2
     import ipinfo
@@ -46,20 +47,22 @@ db.execute("CREATE TABLE IF NOT EXISTS orders(id BIGINT AUTO_INCREMENT PRIMARY K
 db.execute("CREATE TABLE IF NOT EXISTS order_details(order_iD BIGINT NOT NULL, content_id BIGINT NOT NULL, amount BIGINT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS cart(netflix_id BIGINT NOT NULL, title LONGTEXT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp LONGTEXT)")
-
 login_status = False
-
-
-actors={}
+actors = {}
 db.execute("SELECT * FROM actors")
 for i in db.fetchall():
-    actors[i][0] = i[1]
+    key = i[0]
+    value = i[1]
+    actors.update({key: value})
 print(actors)
 directors = {}
 db.execute("SELECT * FROM directors")
 for i in db.fetchall():
-    directors[i][0] = i[1]
+    key = i[0]
+    value = i[1]
+    directors.update({key: value})
 print(directors)
+
 
 def record_checker(tablename, fieldname, variable):
     db.execute("SELECT {mycolumn} FROM {mytablename}".format(mycolumn=fieldname, mytablename=tablename), ())
@@ -136,7 +139,7 @@ def register_customer():
     password = getpass("Enter your password: ")
     passhash = pass_hasher(password)
     db.execute("INSERT INTO customers (name, email, phone_number, username, country_code) VALUES(%s, %s, %s, %s, %s)",
-               (name, email, phone_number, username, ip_details.country))
+               (name, email, phone_number, username, """ip_details.country"""))
     cdb.commit()
     db.execute("INSERT INTO auth VALUES(%s, %s)", (username, passhash))
     cdb.commit()
@@ -385,7 +388,7 @@ def login():
             if c == argon2.exceptions.VerifyMismatchError:
                 sys.exit("Incorrect password!")
 
-            if i[0] == login_username  and c == True:
+            if i[0] == login_username and c == True:
                 login_status = True
                 os.system('cls')
                 print("Login successful!")
@@ -417,16 +420,31 @@ def search_content(c):
 
 def list_info(id):
     db.execute("SELECT title, release_year, rating, type, runtime, language, actor1, actor2, actor3, actor4, director, imdb, description, (price + ((price*vat)/100)) 'price' FROM content WHERE netflix_id = %s", (id,))
-    rs = db.fetchall()
+    rs = db.fetchall()[0]
     print()
-    print(termcolor.colored(rs[0][0].upper(), 'red', attrs=['bold', 'underline']))
-    print("Release Year: ", rs[0][1])
-    print("Rating: ", rs[0][2])
-    print("Contenet Type: ", rs[0][3])
-    print("Runtime: ", rs[0][4])
-    print("Langauge: ", rs[0][5])
-    print("Actor1: ", actors.get(rs[0][6]))
+    ac1 = rs[6]
+    ac2 = rs[7]
+    ac3 = rs[8]
+    ac4 = rs[9]
+    if rs[7] == "NULL":
+        ac2 = ac3 = ac4 = None
+    elif rs[8] == "NULL":
+        ac3 = ac4 = None
+    elif rs[9] == "NULL":
+        ac4 = None
+    print(termcolor.colored(rs[0].upper(), 'red', attrs=['bold', 'underline']))
+    print("Release Year: ", rs[1])
+    print("Rating:", rs[2])
+    print("Contenet Type:", rs[3])
+    print("Runtime:", rs[4])
+    print("Langauge:", rs[5])
+    print("Starring:", ac1, )
+    print("Directors:", directors.get(rs[10]))
+    print("IMDB Rating:", rs[11])
+    print("Description:", rs[12])
+    print("Price: AED", rs[13])
     print()
+
 
 while True:
     print("1. Login")
@@ -461,3 +479,9 @@ while True:
             s = int(input("Enter content number for more options:"))
             sid = rs[s-1][0]
             list_info(sid)
+
+            print("1. Buy now!")
+            print("2. Add to cart")
+            co = int(input("Enter your choice: "))
+            if co == 1:
+                print()
