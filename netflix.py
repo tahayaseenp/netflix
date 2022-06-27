@@ -581,8 +581,7 @@ def list_info(id):
     print("Price: AED", rs[13])
     print()
 
-send_mail('tp.cs50test@gmail.com', 'tahayparker@gmail.com', 'Your Netflix OTP', "123456")
-time.sleep(10)
+
 while True:
     print("1. Login")
     print("2. Register")
