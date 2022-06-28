@@ -773,7 +773,6 @@ while True:
             if ch == 1:
                 while True:
                     name = input("Enter content title to search: ")
-                    print(name)
                     rs = search_content(name)
                     if rs == "No content found!":
                         print("No content found!")
