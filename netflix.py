@@ -655,12 +655,85 @@ while True:
     print("1. Login")
     print("2. Register")
     print("0. Exit")
-    ch = int(input("Enter your choice: "))
-    if ch == 1:
+    ch = input("Enter your choice: ")
+    if ch == '1':
         login()
 
-    elif ch == 2:
+    elif ch == '2':
         register_customer()
+
+    elif ch == 'admin':
+        otp = gen_otp()
+        send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP", "Here's your Netflix Admin OTP<br><br>" + "<b>" + otp + "</b>" + "<br><br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
+        input_otp = int(input("Enter OTP: "))
+        if str(input_otp) == otp:
+            print("Access granted")
+        else:
+            sys.exit("Access denied - Incorrect OTP")
+
+        print("1. Add Functions")
+        print("2. Edit Functions")
+        print("3. Delete functions")
+        a = int(input("Enter your choice: "))
+        if a == 1:
+            while True:
+                print("1. Add Content")
+                print("2. Add Actors")
+                print("3. Add Direcors")
+                print("0. Exit")
+                
+                b = int(input("Enter your choice: "))
+                if b == 1:
+                    add_content()
+                
+                elif b == 2:
+                    add_actor()
+
+                elif b == 3:
+                    add_director
+
+                elif b == 0:
+                    break
+        
+        elif a == 2:
+            while True:
+                print("1. Edit Content")
+                print("2. Edit Actors")
+                print("3. Edit Direcors")
+                print("0. Exit")
+
+                c = int(input("Enter your choice: "))
+                if c == 1:
+                    edit_content()
+
+                elif c == 2:
+                    edit_actor()
+                
+                elif c == 3:
+                    edit_director()
+
+                elif c == 0:
+                    break
+
+        elif a == 3:
+            while True:
+                print("1. Delete Content")
+                print("2. Delete Actors")
+                print("3. Delete Direcors")
+                print("0. Exit")
+
+                d = int(input("Enter your choice: "))
+                if d == 1:
+                    remove_content()
+
+                elif d == 2:
+                    remove_actor()
+                
+                elif d == 3:
+                    remove_director()
+
+                elif d == 0:
+                    break
 
     elif ch == 0:
         sys.exit("Application exited successfully!")
@@ -813,78 +886,6 @@ while True:
                 elif s == 0:
                     break
         
-        elif sch == 'admin':
-            otp = gen_otp()
-            send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP", "Here's your Netflix Admin OTP<br><br>" + "<b>" + otp + "</b>" + "<br><br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
-            input_otp = int(input("Enter OTP: "))
-            if str(input_otp) == otp:
-                print("Access granted")
-            else:
-                sys.exit("Access denied - Incorrect OTP")
-
-            print("1. Add Functions")
-            print("2. Edit Functions")
-            print("3. Delete functions")
-            a = int(input("Enter your choice: "))
-            if a == 1:
-                while True:
-                    print("1. Add Content")
-                    print("2. Add Actors")
-                    print("3. Add Direcors")
-                    print("0. Exit")
-                    
-                    b = int(input("Enter your choice: "))
-                    if b == 1:
-                        add_content()
-                    
-                    elif b == 2:
-                        add_actor()
-
-                    elif b == 3:
-                        add_director
-
-                    elif b == 0:
-                        break
-            
-            elif a == 2:
-                while True:
-                    print("1. Edit Content")
-                    print("2. Edit Actors")
-                    print("3. Edit Direcors")
-                    print("0. Exit")
-
-                    c = int(input("Enter your choice: "))
-                    if c == 1:
-                        edit_content()
-
-                    elif c == 2:
-                        edit_actor()
-                    
-                    elif c == 3:
-                        edit_director()
-
-                    elif c == 0:
-                        break
-
-            elif a == 3:
-                while True:
-                    print("1. Delete Content")
-                    print("2. Delete Actors")
-                    print("3. Delete Direcors")
-                    print("0. Exit")
-
-                    d = int(input("Enter your choice: "))
-                    if d == 1:
-                        remove_content()
-
-                    elif d == 2:
-                        remove_actor()
-                    
-                    elif d == 3:
-                        remove_director()
-
-                    elif d == 0:
-                        break
 
 
         elif sch == '0':
