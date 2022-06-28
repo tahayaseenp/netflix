@@ -954,3 +954,6 @@ INSERT IGNORE INTO directors VALUES("DR157","Wolfgang Petersen");
 INSERT IGNORE INTO directors VALUES("DR158","Yasir Al-Yasiri");
 INSERT IGNORE INTO directors VALUES("DR159","Yu Yang");
 INSERT IGNORE INTO directors VALUES("DR160","Zack Snyder");
+SELECT * FROM content;
+SELECT * FROM actors;
+SELECT * FROM directors;
