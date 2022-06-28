@@ -69,8 +69,8 @@ db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT
 db.execute("CREATE TABLE IF NOT EXISTS actors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
 db.execute("CREATE TABLE IF NOT EXISTS directors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
 db.execute("CREATE TABLE IF NOT EXISTS customers(name LONGTEXT NOT NULL, email LONGTEXT NOT NULL, phone_number LONGTEXT NOT NULL, username LONGTEXT NOT NULL, country_Code CHAR(3) NOT NULL, balance FLOAT NOT NULL DEFAULT 0.0, PRIMARY KEY index_username(username(100)))")
+db.execute("CREATE TABLE IF NOT EXISTS cc_details(username LONGTEXT NOT NULL, ccno BIGINT NOT NULL, expiration_date DATE NOT NULL, cvv CHAR(5) NOT NULL, cardholder_name LONGTEXT NOT NULL, billing_address LONGTEXT NOT NULL, PRIMARY KEY index_username(username(100)))")
 db.execute("CREATE TABLE IF NOT EXISTS auth(username LONGTEXT NOT NULL, passhash LONGTEXT NOT NULL, PRIMARY KEY index_username(username(100)))")
-db.execute("CREATE TABLE IF NOT EXISTS orders(id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL, customer_ID BIGINT NOT NULL, date DATETIME)")
 db.execute("CREATE TABLE IF NOT EXISTS order_details(order_iD BIGINT NOT NULL, content_id BIGINT NOT NULL, amount BIGINT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS cart(username LONGTEXT, netflix_id BIGINT NOT NULL, title LONGTEXT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp LONGTEXT)")
@@ -659,6 +659,24 @@ def luhn(ccn):
     return sum(c+u2)%10 == 0
 
 
+def add_credit():
+    print("Add credit to your account")
+    amnt = float(input("Amount to credit: "))
+    ccno = input("Card number (without spaces or dashes): ")
+    exdt = input("Expiration date (MM/YY): ")
+    cvv = getpass("CVV: ")
+    name = input("Cardholder Name:")
+    adl1 = input("Billing Address: ")
+    city =  input("City: ")
+    country = input("Country: ")
+    if luhn(ccno) == True and datetime.datetime.now().month <= int(exdt[0:2]) and int(str(datetime.datetime.now().year)[2:]) <= int(exdt[3:]):
+        db.execute("UPDATE customers SET balance = balance + %s WHERE username = %s", (amnt, login_username))
+        cdb.commit()
+        print("Account balance updated successfully!")
+    else:
+        print("Incorrect card details!")
+
+
 while True:
     print("1. Login")
     print("2. Register")
@@ -758,7 +776,7 @@ while True:
     else:
         print("1. Search for content")
         print("2. View Cart")
-        print("3. Accounnt settings")
+        print("3. Accounnt Management")
         print("0. Exit")
 
         sch = input("Enter your choice: ")
