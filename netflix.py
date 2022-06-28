@@ -71,6 +71,7 @@ db.execute("CREATE TABLE IF NOT EXISTS directors(id CHAR(5) PRIMARY KEY NOT NULL
 db.execute("CREATE TABLE IF NOT EXISTS customers(name LONGTEXT NOT NULL, email LONGTEXT NOT NULL, phone_number LONGTEXT NOT NULL, username LONGTEXT NOT NULL, country_Code CHAR(3) NOT NULL, balance FLOAT NOT NULL DEFAULT 0.0, PRIMARY KEY index_username(username(100)))")
 db.execute("CREATE TABLE IF NOT EXISTS cc_details(username LONGTEXT NOT NULL, ccno BIGINT NOT NULL, expiration_date DATE NOT NULL, cvv CHAR(5) NOT NULL, cardholder_name LONGTEXT NOT NULL, billing_address LONGTEXT NOT NULL, PRIMARY KEY index_username(username(100)))")
 db.execute("CREATE TABLE IF NOT EXISTS auth(username LONGTEXT NOT NULL, passhash LONGTEXT NOT NULL, PRIMARY KEY index_username(username(100)))")
+db.execute("CREATE TABLE IF NOT EXISTS orders(id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL, customer_username LONGTEXT NOT NULL, date DATETIME)")
 db.execute("CREATE TABLE IF NOT EXISTS order_details(order_iD BIGINT NOT NULL, content_id BIGINT NOT NULL, amount BIGINT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS cart(username LONGTEXT, netflix_id BIGINT NOT NULL, title LONGTEXT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp LONGTEXT)")
