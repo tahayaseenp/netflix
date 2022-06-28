@@ -1,16 +1,14 @@
-from cmath import e
 import os
 import sys
 os.system("cls")
-print("****    ****   *********  ***********  *********  ****        ****   ***     ***")
-print("*****   ****   *********  ***********  *********  ****        ****    ***   *** ")
-print("******  ****   ***            ***      ***        ****        ****     *** ***  ")
-print("******  ****   ***            ***      ********   ****        ****      *****   ")
-print("******* ****   ********       ***      ***        ****        ****      ****    ")
-print("**** *******   ***            ***      ***        ****        ****     ******   ")
-print("****  ******   ***            ***      ***        ****        ****    ********  ")
-print("****   *****   *********                          **********  ****   ****  **** ")
-print("****    ****                                                        ****    ****")
+print("""
+███    ██ ███████ ████████ ███████ ██      ██ ██   ██ 
+████   ██ ██         ██    ██      ██      ██  ██ ██  
+██ ██  ██ █████      ██    █████   ██      ██   ███   
+██  ██ ██ ██         ██    ██      ██      ██  ██ ██  
+██   ████ ███████    ██    ██      ███████ ██ ██   ██ 
+""")
+
 if not sys.warnoptions:
     import warnings
     warnings.simplefilter("ignore")
@@ -27,6 +25,7 @@ try:
     os.system("pip3 install -U -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts cffi pip setuptools")
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts argon2-cffi")
     os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts termcolor")
+    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts lxml")
 except:
     sys.exit("Unable to install required dependencies!")
 
@@ -42,12 +41,13 @@ try:
     import smtplib
     import urllib.parse
     import urllib.request
-    import lxml.html
+    import lxml
     import random
     from getpass import getpass
     from mysql.connector import connect
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
+    from lxml import html
 
 except:
     sys.exit("Unable to import required dependencies")
@@ -68,12 +68,13 @@ db = cdb.cursor()
 db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT NULL, title LONGTEXT NOT NULL, type VARCHAR(10) NOT NULL, rating VARCHAR(15) NOT NULL, release_year YEAR NOT NULL, actor1 CHAR(5) NOT NULL, actor2 CHAR(5) NOT NULL, actor3 CHAR(5) NOT NULL, actor4 CHAR(5) NOT NULL, director CHAR(5) NOT NULL, category VARCHAR(255) NOT NULL, imdb VARCHAR(20) NOT NULL, runtime VARCHAR(50) NOT NULL, description LONGTEXT NOT NULL, language VARCHAR(255) NOT NULL, price FLOAT NOT NULL, VAT FLOAT NOT NULL DEFAULT 5.0)")
 db.execute("CREATE TABLE IF NOT EXISTS actors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
 db.execute("CREATE TABLE IF NOT EXISTS directors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
-db.execute("CREATE TABLE IF NOT EXISTS customers(id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL, name LONGTEXT NOT NULL, email LONGTEXT NOT NULL, phone_number LONGTEXT NOT NULL, username VARCHAR(512) NOT NULL, country_Code CHAR(3) NOT NULL, balance FLOAT NOT NULL DEFAULT 0.0)")
+db.execute("CREATE TABLE IF NOT EXISTS customers(name LONGTEXT NOT NULL, email LONGTEXT NOT NULL, phone_number LONGTEXT NOT NULL, username LONGTEXT NOT NULL, country_Code CHAR(3) NOT NULL, balance FLOAT NOT NULL DEFAULT 0.0, PRIMARY KEY index_username(username(100)))")
 db.execute("CREATE TABLE IF NOT EXISTS auth(username LONGTEXT NOT NULL, passhash LONGTEXT NOT NULL, PRIMARY KEY index_username(username(100)))")
 db.execute("CREATE TABLE IF NOT EXISTS orders(id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL, customer_ID BIGINT NOT NULL, date DATETIME)")
 db.execute("CREATE TABLE IF NOT EXISTS order_details(order_iD BIGINT NOT NULL, content_id BIGINT NOT NULL, amount BIGINT NOT NULL)")
-db.execute("CREATE TABLE IF NOT EXISTS cart(netflix_id BIGINT NOT NULL, title LONGTEXT NOT NULL)")
+db.execute("CREATE TABLE IF NOT EXISTS cart(username LONGTEXT, netflix_id BIGINT NOT NULL, title LONGTEXT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp LONGTEXT)")
+db.execute("CREATE TABLE IF NOT EXISTS admin(username LONGTEXT NOT NULL, passhash LONGTEXT NOT NULL, PRIMARY KEY index_username(username(100)))")
 
 GOOGLE_ACCOUNTS_BASE_URL = 'https://accounts.google.com'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
@@ -298,7 +299,7 @@ def register_customer():
     db.execute("INSERT INTO auth VALUES(%s, %s)", (username, passhash))
     cdb.commit()
     os.system("cls")
-    print("You have successfully registered! Please run the program and login")
+    print("You have successfully registered! Please run the program again and login!")
     sys.exit(0)
 
 
@@ -612,10 +613,11 @@ def logout():
 
 def search_content(c):
     db.execute("SELECT netflix_id, title FROM content WHERE title LIKE %s", ('%' + c + '%',))
-    if db.fetchall() == []:
+    rs = db.fetchall()
+    if len(rs) == 0:
         return "No content found!"
     else:
-        return db.fetchall()
+        return rs
 
 
 def list_info(id):
@@ -651,6 +653,12 @@ def list_info(id):
     print()
 
 
+def luhn(ccn):
+    c = [int(x) for x in str(ccn)[::-2]]
+    u2 = [(2*int(y))//10+(2*int(y))%10 for y in str(ccn)[-2::-2]]
+    return sum(c+u2)%10 == 0
+
+
 while True:
     print("1. Login")
     print("2. Register")
@@ -664,7 +672,8 @@ while True:
 
     elif ch == 'admin':
         otp = gen_otp()
-        send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP", "Here's your Netflix Admin OTP<br><br>" + "<b>" + otp + "</b>" + "<br><br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
+        send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP",
+                  "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
         input_otp = int(input("Enter OTP: "))
         if str(input_otp) == otp:
             print("Access granted")
@@ -735,7 +744,7 @@ while True:
                 elif d == 0:
                     break
 
-    elif ch == 0:
+    elif ch == '0':
         sys.exit("Application exited successfully!")
 
     else:
@@ -755,6 +764,7 @@ while True:
         sch = input("Enter your choice: ")
 
         if sch == '1':
+            print()
             print("1. Search for content using title")
             print("2. Search for content using Netflix ID")
             print("3. List all content")
@@ -763,11 +773,13 @@ while True:
             if ch == 1:
                 while True:
                     name = input("Enter content title to search: ")
+                    print(name)
                     rs = search_content(name)
                     if rs == "No content found!":
                         print("No content found!")
                         print()
                         break
+                    
                     for i in range(0, len(rs)):
                         print(str(i+1)+".", rs[i][1])
                     print()
@@ -781,12 +793,14 @@ while True:
                     if co == 1:
                         print()
                         # buy_now()
+                        break
 
                     elif co == 2:
-                        db.execute("INSERT INTO cart VALUES(%s, %s)", (sid, rs[s-1][1]))
+                        db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, sid, rs[s-1][1]))
                         cdb.commit()
                         print("Added to cart!")
                         print()
+                        break
 
                     elif co == 0:
                         break
@@ -796,7 +810,7 @@ while True:
                     nid = int(input("Enter Netflix ID: "))
                     db.execute("SELECT netflix_id, title FROM content WHERE netflix_id = %s", (nid,))
                     rs = db.fetchall()
-                    if rs == []:
+                    if len(rs) == 0:
                         print("No content found!")
                         print()
                         break
@@ -812,10 +826,11 @@ while True:
                         # buy_now()
                     
                     elif ct == 2:
-                        db.execute("INSERT INTO cart VALUES(%s, %s)", (nid, rs[1]))
+                        db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, nid, rs[1]))
                         cdb.commit()
                         print("Added to cart!")
                         print()
+                        break
 
                     elif ct == 0:
                         break
@@ -843,10 +858,11 @@ while True:
                         # buy_now()
                 
                     elif cr == 2:
-                        db.execute("INSERT INTO cart VALUES(%s, %s)", (sid, rs[s-1][1]))
+                        db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, sid, rs[s-1][1]))
                         cdb.commit()
                         print("Added to cart!")
                         print()
+                        break
 
                     elif cr == 0:
                         break
@@ -856,20 +872,35 @@ while True:
  
         elif sch == '2':
             while True:
-                print("CART")
-                db.execute("SELECT DISTINCT * FROM cart")
+                print("""                                
+██████   █████  ██████  ████████ 
+██      ██   ██ ██   ██    ██    
+██      ███████ ██████     ██    
+██      ██   ██ ██   ██    ██    
+██████  ██   ██ ██   ██    ██    
+                """)
+                db.execute("SELECT DISTINCT * FROM cart WHERE username = %s", (login_username,))
                 rs = db.fetchall()
-
+                
+                if len(rs) == 0:
+                    print(termcolor.colored("Your cart looks empty :(", attrs=['bold']))
+                    print('\x1B[3m' + "What are you waiting for?" + '\x1B[0m')
+                    print()
+                    break
+                    
                 for i in range(0, len(rs)):
-                    print(str(i+1)+".", rs[i][1])
+                    print(str(i+1)+".", rs[i][2])
                 print()
 
                 print("1. View movie details")
-                print("2. Empty cart")
+                print("2. Delete specific items")
+                print("3. Empty cart")
 
-                s = int(input("Enter your choice:"))
+                s = int(input("Enter your choice: "))
+                
                 if s == 1:
-                    sid = rs[s-1][0]
+                    c = int(input("Enter content number: "))
+                    sid = rs[c-1][1]
                     list_info(sid)
 
                     c = int(input("Press 1 to buy now: "))
@@ -879,14 +910,22 @@ while True:
                         # buy_now()
 
                 elif s == 2:
-                    db.execute("DELETE FROM cart")
+                    c = int(input("Enter content number: "))
+                    sid = rs[c-1][1]
+                    db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))
                     cdb.commit()
+                    print("Successfully deleted content!")
+                    print()
+
+                elif s == 3:
+                    db.execute("DELETE FROM cart WHERE username = %s", (login_username,))
+                    cdb.commit()
+                    print("Successfully emptied cart!")
+                    print()
                     break
 
                 elif s == 0:
                     break
         
-
-
         elif sch == '0':
             sys.exit("Application exited successfully!")
