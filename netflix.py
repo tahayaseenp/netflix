@@ -1,7 +1,6 @@
 # TODO: edit customer details, sudo mode
 import os
 import sys
-from xmlrpc.client import DateTime
 os.system("cls")
 print("""
 ███    ██ ███████ ████████ ███████ ██      ██ ██   ██ 
