@@ -56,14 +56,14 @@ except:
 
 ip_details = ipinfo.getHandler("eb85c6b947bbc4").getDetails()
 
-cdb = connect(host="localhost", user="root", password="root")
+cdb = connect(host="localhost", user="root", password="17102005")
 db = cdb.cursor()
 db.execute("CREATE DATABASE IF NOT EXISTS netflix")
 cdb.commit()
 db.close()
 cdb.close()
 
-cdb = connect(host="localhost", user="root", password="root", database="netflix")
+cdb = connect(host="localhost", user="root", password="17102005", database="netflix")
 db = cdb.cursor()
 
 db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT NULL, title LONGTEXT NOT NULL, type VARCHAR(10) NOT NULL, rating VARCHAR(15) NOT NULL, release_year YEAR NOT NULL, actor1 CHAR(5) NOT NULL, actor2 CHAR(5) NOT NULL, actor3 CHAR(5) NOT NULL, actor4 CHAR(5) NOT NULL, director CHAR(5) NOT NULL, category VARCHAR(255) NOT NULL, imdb VARCHAR(20) NOT NULL, runtime VARCHAR(50) NOT NULL, description LONGTEXT NOT NULL, language VARCHAR(255) NOT NULL, price FLOAT NOT NULL, VAT FLOAT NOT NULL DEFAULT 5.0)")
