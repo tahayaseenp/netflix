@@ -1,3 +1,4 @@
+# TODO: buy now / order , edit customer details, view all bought movies, sudo mode
 import os
 import sys
 os.system("cls")
@@ -55,14 +56,14 @@ except:
 
 ip_details = ipinfo.getHandler("eb85c6b947bbc4").getDetails()
 
-cdb = connect(host="localhost", user="root", password="17102005")
+cdb = connect(host="localhost", user="root", password="root")
 db = cdb.cursor()
 db.execute("CREATE DATABASE IF NOT EXISTS netflix")
 cdb.commit()
 db.close()
 cdb.close()
 
-cdb = connect(host="localhost", user="root", password="17102005", database="netflix")
+cdb = connect(host="localhost", user="root", password="root", database="netflix")
 db = cdb.cursor()
 
 db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT NULL, title LONGTEXT NOT NULL, type VARCHAR(10) NOT NULL, rating VARCHAR(15) NOT NULL, release_year YEAR NOT NULL, actor1 CHAR(5) NOT NULL, actor2 CHAR(5) NOT NULL, actor3 CHAR(5) NOT NULL, actor4 CHAR(5) NOT NULL, director CHAR(5) NOT NULL, category VARCHAR(255) NOT NULL, imdb VARCHAR(20) NOT NULL, runtime VARCHAR(50) NOT NULL, description LONGTEXT NOT NULL, language VARCHAR(255) NOT NULL, price FLOAT NOT NULL, VAT FLOAT NOT NULL DEFAULT 5.0)")
@@ -576,9 +577,14 @@ def login():
     login_username = input("Enter your username: ")
     password = getpass("Enter your password: ")
     db.execute("SELECT username, passhash FROM auth")
+    rs = db.fetchall()
+
+    if len(rs) == 0:
+        sys.exit("Username doesn't exist!")
+
     while True:
 
-        for i in db.fetchall():
+        for i in rs:
 
             try:
                 c = pass_verify(i[1], password)
@@ -591,11 +597,10 @@ def login():
                 print("Login successful!")
                 print("Hello,", login_username + "!" "\n")
                 return login_status
-                break
 
             elif i[0] != login_username or c == False:
                 login_status = False
-                sys.exit("Incorrect username!")
+                sys.exit("Username doesn't exist!")
 
             else:
                 login_status = False
@@ -607,9 +612,9 @@ def login():
 def logout():
     global login_status
     global login_username
-    print("You are now logged out!")
     login_status = False
     login_username = None
+    sys.exit("Successfully logged out!")
 
 
 def search_content(c):
@@ -676,7 +681,9 @@ def add_credit():
         print("Account balance updated successfully!")
     else:
         print("Incorrect card details!")
+        
 
+#def 
 
 while True:
     print("1. Login")
@@ -691,7 +698,7 @@ while True:
 
     elif ch == 'admin':
         otp = gen_otp()
-        send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP",
+        send_mail("tp.cs50test@gmail.com", "tahayaseen.p_uis@gemselearning.com", "Your Netflix Admin OTP",
                   "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
         input_otp = int(input("Enter OTP: "))
         if str(input_otp) == otp:
@@ -773,12 +780,12 @@ while True:
 
 while True:
     if login_status != True:
-        sys.exit("Please login to continute")        
+        sys.exit("Please login to continue")        
     else:
         print("1. Search for content")
         print("2. View Cart")
         print("3. Accounnt Management")
-        print("0. Exit")
+        print("0. Logout")
 
         sch = input("Enter your choice: ")
 
@@ -926,6 +933,12 @@ while True:
                     if c == 1:
                         print()
                         # buy_now()
+                        db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))
+                        cdb.commit()
+                        break
+                    
+                    elif c == 0:
+                        break
 
                 elif s == 2:
                     c = int(input("Enter content number: "))
@@ -945,5 +958,67 @@ while True:
                 elif s == 0:
                     break
         
+        elif sch == '3':
+            while True:
+                print()
+                print("1. Credit Management")
+                print("2. View all purchases")
+                print("3. Edit account details")
+                print("4. Delete your account")
+
+                t = int(input("Enter your choice: "))
+
+                if t == 1:
+                    print("1. View current balance")
+                    print("2. Add credits to account")
+
+                    v = int(input("Enter your choice: "))
+                    
+                    if v == 1:
+                        db.execute("SELECT balance FROM customers WHERE username = %s", (login_username,))
+                        rs = db.fetchall()[0][0]
+                        balance = "AED " + str(rs)
+                        print("Current balance:", balance)
+                        break
+
+                    elif v == 2:
+                        add_credit()
+                        break
+
+                    elif v == 0:
+                        break
+                
+                elif t == 2:
+                    print()
+                    # TODO
+                    # Requires JOIN clause
+                    break
+
+                elif t == 3:
+                    # edit_customer()
+                    # TODO
+                    print()
+                    break
+
+                elif t == 4:
+                    print("WARNING: THIS WILL DELETE YOUR ACCOUNT PERMANENTLY!")
+                    print("YOU WILL LOSE ACCESS TO ALL MOVIES BOUGHT!")
+                    print("MOVIES PREVIOUSLY BOUGHT WILL HAVE TO BE BOUGHT AGAIN!")
+                    print("CURRENT BALANCE WILL NOT BE REFUNDED!")
+                    confirm = input("TO PROCEED, TYPE 'I confirm the deletion' (Case Sensitive): ")
+
+                    if confirm != 'I confirm the deletion':
+                        sys.exit("Wrong phrase entered!")
+                    
+                    else:
+                        db.execute("DELETE FROM customers WHERE username = %s", (login_username,))
+                        cdb.commit()
+                        db.execute("DELETE FROM auth WHERE username = %s", (login_username,))
+                        cdb.commit()
+                        sys.exit("Account deleted successfully!")
+                
+                elif t == 0:
+                    break
+
         elif sch == '0':
-            sys.exit("Application exited successfully!")
+            logout()
