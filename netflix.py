@@ -56,14 +56,14 @@ except:
 
 ip_details = ipinfo.getHandler("eb85c6b947bbc4").getDetails()
 
-cdb = connect(host="localhost", user="root", password="17102005")
+cdb = connect(host="localhost", user="root", password="root")
 db = cdb.cursor()
 db.execute("CREATE DATABASE IF NOT EXISTS netflix")
 cdb.commit()
 db.close()
 cdb.close()
 
-cdb = connect(host="localhost", user="root", password="17102005", database="netflix")
+cdb = connect(host="localhost", user="root", password="root", database="netflix")
 db = cdb.cursor()
 
 db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT NULL, title LONGTEXT NOT NULL, type VARCHAR(10) NOT NULL, rating VARCHAR(15) NOT NULL, release_year YEAR NOT NULL, actor1 CHAR(5) NOT NULL, actor2 CHAR(5) NOT NULL, actor3 CHAR(5) NOT NULL, actor4 CHAR(5) NOT NULL, director CHAR(5) NOT NULL, category VARCHAR(255) NOT NULL, imdb VARCHAR(20) NOT NULL, runtime VARCHAR(50) NOT NULL, description LONGTEXT NOT NULL, language VARCHAR(255) NOT NULL, price FLOAT NOT NULL, VAT FLOAT NOT NULL DEFAULT 5.0)")
@@ -331,13 +331,14 @@ def edit_content():
     print("Content title: ", db.fetchall()[0][0])
 
     print("What would you like to edit?")
-    print("1. Content Title     		8.  Actor 4")
-    print("2. Content Type 				9.  Director")
-    print("3. Content PG Rating 		10. Content category")
-    print("4. Content release year		11. IMDB Rating")
-    print("5. Actor 1 					12. Runtime")
-    print("6. Actor 2 					13. Description")
-    print("7. Actor 3 					14. Language")
+    print("1. Content Title     		9.  Director")
+    print("2. Content Type 				10. Content category")
+    print("3. Content PG Rating 		11. IMDB Rating")
+    print("4. Content release year		12. Runtime")
+    print("5. Actor 1 					13. Description")
+    print("6. Actor 2 					14. Language")
+    print("7. Actor 3 					15. Price")
+    print("8. Actor 4 					16. VAT")
 
     c = input("Enter your choice: ")
 
@@ -505,6 +506,29 @@ def edit_content():
 
         else:
             print("No language provided!")
+    
+    elif c == 15:
+        price = float(input("Enter content price: "))
+
+        if price:
+            db.execute("UPDATE content SET price = %s WHERE netflix_id = %s", (price, nid))
+            cdb.commit()
+            print("Price changed successfully!")
+
+        else:
+            print("No price provided!")
+    
+    elif c == 16:
+        vat = float(input("Enter content VAT: "))
+
+        if price:
+            db.execute("UPDATE content SET vat = %s WHERE netflix_id = %s", (vat, nid))
+            cdb.commit()
+            print("VAT changed successfully!")
+
+        else:
+            print("No VAT provided!")
+
 
 
 def remove_actor():
