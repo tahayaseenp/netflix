@@ -1,6 +1,7 @@
-# TODO: buy now / order , edit customer details, view all bought movies, sudo mode
+# TODO: edit customer details, sudo mode
 import os
 import sys
+from xmlrpc.client import DateTime
 os.system("cls")
 print("""
 ███    ██ ███████ ████████ ███████ ██      ██ ██   ██ 
@@ -72,10 +73,9 @@ db.execute("CREATE TABLE IF NOT EXISTS directors(id CHAR(5) PRIMARY KEY NOT NULL
 db.execute("CREATE TABLE IF NOT EXISTS customers(name LONGTEXT NOT NULL, email LONGTEXT NOT NULL, phone_number LONGTEXT NOT NULL, username LONGTEXT NOT NULL, country_Code CHAR(3) NOT NULL, balance FLOAT NOT NULL DEFAULT 0.0, PRIMARY KEY index_username(username(100)))")
 db.execute("CREATE TABLE IF NOT EXISTS auth(username LONGTEXT NOT NULL, passhash LONGTEXT NOT NULL, PRIMARY KEY index_username(username(100)))")
 db.execute("CREATE TABLE IF NOT EXISTS orders(id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL, customer_username LONGTEXT NOT NULL, date DATETIME)")
-db.execute("CREATE TABLE IF NOT EXISTS order_details(order_iD BIGINT NOT NULL, content_id BIGINT NOT NULL, amount BIGINT NOT NULL)")
+db.execute("CREATE TABLE IF NOT EXISTS order_details(order_id BIGINT NOT NULL, content_id BIGINT NOT NULL, amount BIGINT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS cart(username LONGTEXT, netflix_id BIGINT NOT NULL, title LONGTEXT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp LONGTEXT)")
-db.execute("CREATE TABLE IF NOT EXISTS admin(username LONGTEXT NOT NULL, passhash LONGTEXT NOT NULL, PRIMARY KEY index_username(username(100)))")
 
 GOOGLE_ACCOUNTS_BASE_URL = 'https://accounts.google.com'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
@@ -214,13 +214,25 @@ def send_mail(fromaddr, toaddr, subject, message):
 
 
 def record_checker(tablename, fieldname, variable):
-    db.execute("SELECT {mycolumn} FROM {mytablename}".format(mycolumn=fieldname, mytablename=tablename), ())
-    if variable not in db.fetchall():
+    db.execute("SELECT {mycolumn} FROM {mytablename} WHERE {mycolumn} = %s".format(
+        mycolumn=fieldname, mytablename=tablename), (variable,))
+    rs = db.fetchall()
+    if len(rs) == 0:
         print("Does not exist!")
         return False
 
     else:
-        return True
+        if rs[0][0] == variable:
+            return True
+        else:
+            print("Does not exist!")
+            return False
+
+
+def get_price(nid):
+    db.execute("SELECT (price + ((price*vat) / 100)) 'Price' FROM content WHERE netflix_id = %s", (nid,))
+    rs = db.fetchall()[0][0]
+    return rs
 
 
 def pass_hasher(password):
@@ -268,7 +280,7 @@ def add_content():
     language = input("Enter content language: ")
     price = float(input("Enter content price: "))
     vat = float(input("Enter content VAT: "))
-    db.execute("INSERT INTO content(netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+    db.execute("INSERT INTO content(netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                (netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)) if rc1 == True and rc2 == True and rc3 == True and rc4 == True and rc5 == True else print("Record not added!")
     cdb.commit()
 
@@ -530,7 +542,6 @@ def edit_content():
             print("No VAT provided!")
 
 
-
 def remove_actor():
     x = input("WARNING! YOU ARE ATTEMTPING TO REMOVE RECORDS FROM THE DATABASE! TYPE 'I know what I'm doing' (Case Sensitive) TO CONTINUE: ")
     if x != "I know what I'm doing":
@@ -684,8 +695,8 @@ def list_info(id):
 
 def luhn(ccn):
     c = [int(x) for x in str(ccn)[::-2]]
-    u2 = [(2*int(y))//10+(2*int(y))%10 for y in str(ccn)[-2::-2]]
-    return sum(c+u2)%10 == 0
+    u2 = [(2*int(y))//10+(2*int(y)) % 10 for y in str(ccn)[-2::-2]]
+    return sum(c+u2) % 10 == 0
 
 
 def add_credit():
@@ -696,17 +707,72 @@ def add_credit():
     cvv = getpass("CVV: ")
     name = input("Cardholder Name:")
     adl1 = input("Billing Address: ")
-    city =  input("City: ")
+    city = input("City: ")
     country = input("Country: ")
+
     if luhn(ccno) == True and datetime.datetime.now().month <= int(exdt[0:2]) and int(str(datetime.datetime.now().year)[2:]) <= int(exdt[3:]):
         db.execute("UPDATE customers SET balance = balance + %s WHERE username = %s", (amnt, login_username))
         cdb.commit()
+
         print("Account balance updated successfully!")
+
     else:
         print("Incorrect card details!")
         
 
-#def 
+def check_if_bought(nid):
+    db.execute("SELECT content_id FROM order_details, orders, customers WHERE order_details.order_id=orders.id AND orders.customer_username=customers.username")
+    rs = db.fetchall()
+
+    if len(rs) == 0:
+        return False
+
+    else:
+        for i in rs:
+            if i[0] == nid:
+                return True
+
+            else:
+                return False
+
+
+def buy_now(nid):
+    cib = check_if_bought(nid)
+    if cib == False:
+        db.execute("SELECT balance FROM customer WHERE username = %s", (login_username,))
+        balance = db.fetchall()
+        price = get_price(nid) 
+        
+        if get_price(nid) <= balance:
+            db.execute("INSERT INTO orders(customer_username, date) VALUES(%s, %s)", (login_username, datetime.datetime.now()))
+            cdb.commit()
+
+            db.execute("SELECT id FROM orders ORDER BY date DESC LIMIT 1")
+            id = db.fetchall()[0][0]
+
+            db.execute("INSERT INTO order_details VALUES(%s, %s, %s)", (id, nid, price))
+            cdb.commit()
+
+            db.execute("UPDATE customers SET balance = balance - %s WHERE username = %s", (price, login_username))
+            print("Successfully bought content!")
+        
+        else:
+            print("Insufficient credits!")
+
+    else:
+        print("You already bought this content!")
+
+
+def list_all_bought():
+    print(termcolor.colored("All owned content", attrs=['bold', 'underline']))
+    db.execute("SELECT content_id FROM order_details, orders, customers WHERE order_details.order_id=orders.id AND orders.customer_username=customers.username")
+    for i in db.fetchall():
+        nid = i[0]
+        db.execute("SELECT title FROM content WHERE netflix_id = %s", (nid,))
+        title = db.fetchall()[0][0]
+        print(title)
+        print()
+
 
 while True:
     print("1. Login")
@@ -728,70 +794,71 @@ while True:
             print("Access granted")
         else:
             sys.exit("Access denied - Incorrect OTP")
-
-        print("1. Add Functions")
-        print("2. Edit Functions")
-        print("3. Delete functions")
-        a = int(input("Enter your choice: "))
-        if a == 1:
-            while True:
-                print("1. Add Content")
-                print("2. Add Actors")
-                print("3. Add Direcors")
-                print("0. Exit")
-                
-                b = int(input("Enter your choice: "))
-                if b == 1:
-                    add_content()
-                
-                elif b == 2:
-                    add_actor()
-
-                elif b == 3:
-                    add_director
-
-                elif b == 0:
-                    break
         
-        elif a == 2:
-            while True:
-                print("1. Edit Content")
-                print("2. Edit Actors")
-                print("3. Edit Direcors")
-                print("0. Exit")
+        while True:
+            print("1. Add Functions")
+            print("2. Edit Functions")
+            print("3. Delete functions")
+            a = int(input("Enter your choice: "))
+            if a == 1:
+                while True:
+                    print("1. Add Content")
+                    print("2. Add Actors")
+                    print("3. Add Direcors")
+                    print("0. Exit")
+                    
+                    b = int(input("Enter your choice: "))
+                    if b == 1:
+                        add_content()
+                    
+                    elif b == 2:
+                        add_actor()
 
-                c = int(input("Enter your choice: "))
-                if c == 1:
-                    edit_content()
+                    elif b == 3:
+                        add_director()
 
-                elif c == 2:
-                    edit_actor()
-                
-                elif c == 3:
-                    edit_director()
+                    elif b == 0:
+                        break
+            
+            elif a == 2:
+                while True:
+                    print("1. Edit Content")
+                    print("2. Edit Actors")
+                    print("3. Edit Direcors")
+                    print("0. Exit")
 
-                elif c == 0:
-                    break
+                    c = int(input("Enter your choice: "))
+                    if c == 1:
+                        edit_content()
 
-        elif a == 3:
-            while True:
-                print("1. Delete Content")
-                print("2. Delete Actors")
-                print("3. Delete Direcors")
-                print("0. Exit")
+                    elif c == 2:
+                        edit_actor()
+                    
+                    elif c == 3:
+                        edit_director()
 
-                d = int(input("Enter your choice: "))
-                if d == 1:
-                    remove_content()
+                    elif c == 0:
+                        break
 
-                elif d == 2:
-                    remove_actor()
-                
-                elif d == 3:
-                    remove_director()
+            elif a == 3:
+                while True:
+                    print("1. Delete Content")
+                    print("2. Delete Actors")
+                    print("3. Delete Direcors")
+                    print("0. Exit")
 
-                elif d == 0:
-                    break
+                    d = int(input("Enter your choice: "))
+                    if d == 1:
+                        remove_content()
+
+                    elif d == 2:
+                        remove_actor()
+                    
+                    elif d == 3:
+                        remove_director()
+
+                    elif d == 0:
+                        break
 
     elif ch == '0':
         sys.exit("Application exited successfully!")
@@ -840,7 +907,7 @@ while True:
                     co = int(input("Enter your choice: "))
                     if co == 1:
                         print()
-                        # buy_now()
+                        buy_now(sid)
                         break
 
                     elif co == 2:
@@ -871,7 +938,7 @@ while True:
                     ct = int(input("Enter your choice: "))
                     if ct == 1:
                         print()
-                        # buy_now()
+                        buy_now(nid)
                     
                     elif ct == 2:
                         db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, nid, rs[1]))
@@ -955,7 +1022,7 @@ while True:
 
                     if c == 1:
                         print()
-                        # buy_now()
+                        buy_now(sid)
                         db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))
                         cdb.commit()
                         break
@@ -1012,9 +1079,8 @@ while True:
                         break
                 
                 elif t == 2:
+                    list_all_bought()
                     print()
-                    # TODO
-                    # Requires JOIN clause
                     break
 
                 elif t == 3:
