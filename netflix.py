@@ -40,7 +40,8 @@ try:
     import imaplib
     import json
     import smtplib
-    import urllib
+    import urllib.parse
+    import urllib.request
     import lxml
     import random
     from getpass import getpass
@@ -308,7 +309,8 @@ def register_customer():
     db.execute("INSERT INTO auth VALUES(%s, %s)", (username, passhash))
     cdb.commit()
     os.system("cls")
-    sys.exit("You have successfully registered! Please run the program again and login!")
+    print("You have successfully registered! Please run the program again and login!")
+    sys.exit(0)
 
 
 def edit_actor():
@@ -538,39 +540,39 @@ def edit_content():
 
 
 def edit_customer():
-	print("1. Change name")
-	print("2. Change email")
-	print("3. Change phone number")
-	
-	ch = int(input("Enter your choice: "))
-	
-	while True:
-		if ch == 1:
-			name = input("Enter new name: ")
-			db.execute("UPDATE customers SET name= = %s WHERE username = %s", (name, login_username))
-			cdb.commit()
-			print("Name changed successfully!")
-			print()
-			break
-			
-		elif ch == 2:
-			email = input("Enter new email: ")
-			db.execute("UPDATE customers SET email = %s WHERE username = %s", (email, login_username))
-			cdb.commit()
-			print("Email changed successfully!")
-			print()
-			break
-			
-		elif ch == 3:
-			phone_number = input("Enter new phone number in international format: ")
-			db.execute("UPDATE customers SET phone_number = %s WHERE username = %s", (phone_number, login_username))
-			cdb.commit()
-			print("Phone number changed successfully!")
-			print()
-			break
-			
-		elif ch == 0:
-			break
+    print("1. Change name")
+    print("2. Change email")
+    print("3. Change phone number")
+    
+    ch = int(input("Enter your choice: "))
+    
+    while True:
+        if ch == 1:
+            name = input("Enter new name: ")
+            db.execute("UPDATE customers SET name= = %s WHERE username = %s", (name, login_username))
+            cdb.commit()
+            print("Name changed successfully!")
+            print()
+            break
+            
+        elif ch == 2:
+            email = input("Enter new email: ")
+            db.execute("UPDATE customers SET email = %s WHERE username = %s", (email, login_username))
+            cdb.commit()
+            print("Email changed successfully!")
+            print()
+            break
+            
+        elif ch == 3:
+            phone_number = input("Enter new phone number in international format: ")
+            db.execute("UPDATE customers SET phone_number = %s WHERE username = %s", (phone_number, login_username))
+            cdb.commit()
+            print("Phone number changed successfully!")
+            print()
+            break
+            
+        elif ch == 0:
+            break
 
 
 def remove_actor():
@@ -1192,8 +1194,7 @@ while True:
                     break
 
                 elif t == 3:
-                    # edit_customer()
-                    # TODO
+                    edit_customer()
                     print()
                     break
 
