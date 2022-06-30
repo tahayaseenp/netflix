@@ -1,4 +1,4 @@
-# TODO: edit customer details, sudo mode
+# TODO: edit customer details
 import os
 import sys
 os.system("cls")
@@ -704,7 +704,7 @@ def add_credit():
     ccno = input("Card number (without spaces or dashes): ")
     exdt = input("Expiration date (MM/YY): ")
     cvv = getpass("CVV: ")
-    name = input("Cardholder Name:")
+    name = input("Cardholder Name: ")
     adl1 = input("Billing Address: ")
     city = input("City: ")
     country = input("Country: ")
@@ -738,9 +738,10 @@ def check_if_bought(nid):
 def buy_now(nid):
     cib = check_if_bought(nid)
     if cib == False:
-        db.execute("SELECT balance FROM customer WHERE username = %s", (login_username,))
-        balance = db.fetchall()
-        price = get_price(nid) 
+        db.execute("SELECT balance FROM customers WHERE username = %s", (login_username,))
+        balance = db.fetchall()[0][0]
+        time.sleep(10)
+        price = get_price(nid)
         
         if get_price(nid) <= balance:
             db.execute("INSERT INTO orders(customer_username, date) VALUES(%s, %s)", (login_username, datetime.datetime.now()))
@@ -764,18 +765,71 @@ def buy_now(nid):
 
 def list_all_bought():
     print(termcolor.colored("All owned content", attrs=['bold', 'underline']))
+    print()
     db.execute("SELECT content_id FROM order_details, orders, customers WHERE order_details.order_id=orders.id AND orders.customer_username=customers.username")
-    for i in db.fetchall():
-        nid = i[0]
-        db.execute("SELECT title FROM content WHERE netflix_id = %s", (nid,))
-        title = db.fetchall()[0][0]
-        print(title)
+    rs = db.fetchall()
+    j = 1
+    if len(rs) == 0:
+        print(termcolor.colored("Your purchase history looks empty :(", attrs=['bold']))
+        print('\x1B[3m' + "What are you waiting for?" + '\x1B[0m')
+    
+    else:
+        for i in rs:
+            nid = i[0]
+            db.execute("SELECT title FROM content WHERE netflix_id = %s", (nid,))
+            title = db.fetchall()[0][0]
+            print(str(j) + '.', title)
+            j = j + 1
         print()
 
 
+def sudo_mode():
+    print("""
+===============================================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  WARNING  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+YOU HAVE ENTERED SUDO MODE!
+THIS MODE ALLOWS YOU TO EXECUTE ANY SQL COMMAND THROUGH THE PROGRAM
+DO NOT TYPE COMMANDS IF YOU DO NOT KNOW WHAT YOU ARE DOING!
+PRESS "quit" (all lowercase) TO EXIT IMMEDIATELY!
+ALL COMMANDS TYPED WILL BE LOGGED
+TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE INPUT FIELD BELOW TO CONTINUE: 
+===============================================================================================================
+    """)
+    cfm = input("Enter 'I understand the implications of using this mode' over here, or type 'quit' to quit now:")
+    if cfm != 'I understand the implications of using this mode':
+        sys.exit("Wrong phrase entered!")
+    
+    elif cfm == 'quit':
+        sys.exit("Application exited successfully!")
+
+    else:
+        print("TYPE 'quit' TO QUIT THE PROGRAM AT ANY TIME!")
+        print("INCORRECT SQL QUERIES WILL AUTOMATICALLY EXIT THE PROGRAM")
+        while True:
+            cmd = input("Enter SQL Query: ")
+            if cmd.startswith("SELECT"):
+                db.execute("INSERT INTO sudo_logs VALUES(%s, %s)", (cmd, datetime.datetime.now()))
+                cdb.commit()
+                db.execute(cmd)
+                for i in db.fetchall():
+                    print(i)
+                    print()
+            
+            elif cmd.startswith("CREATE") or cmd.startswith("UPDATE") or cmd.startswith("INSERT") or cmd.startswith("DELETE"):
+                db.execute("INSERT INTO sudo_logs VALUES(%s, %s)", (cmd, datetime.datetime.now()))
+                cdb.commit()
+                db.execute(cmd)
+                cdb.commit()
+                print("Command successfully executed!")
+            
+            elif cmd == 'quit':
+                sys.exit("Application exited successfully!")
+
+
 while True:
-    print("1. Login")
-    print("2. Register")
+    print("1. SIGN IN")
+    print("2. JOIN NETFLIX")
     print("0. Exit")
     ch = input("Enter your choice: ")
     if ch == '1':
@@ -859,6 +913,9 @@ while True:
                     elif d == 0:
                         break
 
+    elif ch == 'sudo':
+        sudo_mode()
+
     elif ch == '0':
         sys.exit("Application exited successfully!")
 
@@ -871,9 +928,11 @@ while True:
     if login_status != True:
         sys.exit("Please login to continue")        
     else:
+        print()
         print("1. Search for content")
         print("2. View Cart")
         print("3. Accounnt Management")
+        print("4. About")
         print("0. Logout")
 
         sch = input("Enter your choice: ")
@@ -938,6 +997,7 @@ while True:
                     if ct == 1:
                         print()
                         buy_now(nid)
+                        break
                     
                     elif ct == 2:
                         db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, nid, rs[1]))
@@ -969,7 +1029,8 @@ while True:
                     cr = int(input("Enter your choice: "))
                     if cr == 1:
                         print()
-                        # buy_now()
+                        buy_now(sid)
+                        break
                 
                     elif cr == 2:
                         db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, sid, rs[s-1][1]))
@@ -1058,6 +1119,7 @@ while True:
                 t = int(input("Enter your choice: "))
 
                 if t == 1:
+                    print()
                     print("1. View current balance")
                     print("2. Add credits to account")
 
@@ -1068,10 +1130,12 @@ while True:
                         rs = db.fetchall()[0][0]
                         balance = "AED " + str(rs)
                         print("Current balance:", balance)
+                        print()
                         break
 
                     elif v == 2:
                         add_credit()
+                        print()
                         break
 
                     elif v == 0:
@@ -1107,6 +1171,40 @@ while True:
                 
                 elif t == 0:
                     break
+
+        elif sch == '4':
+            print(termcolor.colored("ABOUT THIS PROJECT", attrs=['bold']))
+
+            print("""
+Netflix Simulator © 2022 by Taha Yaseen Parker is licensed under Attribution-NonCommercial-NoDerivatives 4.0 International.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/
+
+Netflix is a registered trademark of Netflix Inc.
+The Netflix service, including all content provided on the Netflix service, is protected by copyright, trade secret or other intellectual property laws and treaties.
+
+Gmail™ email service is a registered trademark of Google LLC
+
+Other company and product names mentioned herein are trademarks of their respective companies.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Many thanks to the developers of the following Python libraries used in this program:
+    
+    argon2
+    cffi
+    ipinfo
+    datetime
+    termcolor
+    getpass
+    and many more...
+    
+Many thanks to Seppe "Macuyiko" vanden Broucke for making public the code to send electronic mails with OAuth2 and Gmail in Python.
+
+The author would like to express his sincere gratitude to Mrs. Shenooja Pareed for her valuable guidance, comments and suggestions.
+
+The author would also to thank all those who have, directly or indirectly, lent a helping hand in the successful completion of this project.
+            """)
 
         elif sch == '0':
             logout()
