@@ -740,7 +740,6 @@ def buy_now(nid):
     if cib == False:
         db.execute("SELECT balance FROM customers WHERE username = %s", (login_username,))
         balance = db.fetchall()[0][0]
-        time.sleep(10)
         price = get_price(nid)
         
         if get_price(nid) <= balance:
@@ -784,6 +783,15 @@ def list_all_bought():
 
 
 def sudo_mode():
+    otp = gen_otp()
+    send_mail("tp.cs50test@gmail.com", "tahayaseen.p_uis@gemselearning.com", "Your Netflix Admin OTP",
+              "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
+    input_otp = int(input("Enter OTP: "))
+    if str(input_otp) == otp:
+        print("Access granted")
+    else:
+        sys.exit("Access denied - Incorrect OTP")
+
     print("""
 ===============================================================================================================
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  WARNING  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -796,6 +804,7 @@ ALL COMMANDS TYPED WILL BE LOGGED
 TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE INPUT FIELD BELOW TO CONTINUE: 
 ===============================================================================================================
     """)
+
     cfm = input("Enter 'I understand the implications of using this mode' over here, or type 'quit' to quit now:")
     if cfm != 'I understand the implications of using this mode':
         sys.exit("Wrong phrase entered!")
@@ -806,12 +815,14 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
     else:
         print("TYPE 'quit' TO QUIT THE PROGRAM AT ANY TIME!")
         print("INCORRECT SQL QUERIES WILL AUTOMATICALLY EXIT THE PROGRAM")
+
         while True:
             cmd = input("Enter SQL Query: ")
             if cmd.startswith("SELECT"):
                 db.execute("INSERT INTO sudo_logs VALUES(%s, %s)", (cmd, datetime.datetime.now()))
                 cdb.commit()
                 db.execute(cmd)
+
                 for i in db.fetchall():
                     print(i)
                     print()
@@ -819,8 +830,10 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
             elif cmd.startswith("CREATE") or cmd.startswith("UPDATE") or cmd.startswith("INSERT") or cmd.startswith("DELETE"):
                 db.execute("INSERT INTO sudo_logs VALUES(%s, %s)", (cmd, datetime.datetime.now()))
                 cdb.commit()
+
                 db.execute(cmd)
                 cdb.commit()
+
                 print("Command successfully executed!")
             
             elif cmd == 'quit':
