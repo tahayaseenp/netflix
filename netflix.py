@@ -1,4 +1,3 @@
-# TODO: edit customer details
 import os
 import sys
 os.system("cls")
@@ -540,6 +539,7 @@ def edit_content():
 
 
 def edit_customer():
+    print()
     print("1. Change name")
     print("2. Change email")
     print("3. Change phone number")
