@@ -56,14 +56,14 @@ except:
 
 ip_details = ipinfo.getHandler("eb85c6b947bbc4").getDetails()
 
-cdb = connect(host="localhost", user="root", password="17102005")
+cdb = connect(host="localhost", user="root", password="root")
 db = cdb.cursor()
 db.execute("CREATE DATABASE IF NOT EXISTS netflix")
 cdb.commit()
 db.close()
 cdb.close()
 
-cdb = connect(host="localhost", user="root", password="17102005", database="netflix")
+cdb = connect(host="localhost", user="root", password="root", database="netflix")
 db = cdb.cursor()
 
 db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT NULL, title LONGTEXT NOT NULL, type VARCHAR(10) NOT NULL, rating VARCHAR(15) NOT NULL, release_year YEAR NOT NULL, actor1 CHAR(5) NOT NULL, actor2 CHAR(5) NOT NULL, actor3 CHAR(5) NOT NULL, actor4 CHAR(5) NOT NULL, director CHAR(5) NOT NULL, category VARCHAR(255) NOT NULL, imdb VARCHAR(20) NOT NULL, runtime VARCHAR(50) NOT NULL, description LONGTEXT NOT NULL, language VARCHAR(255) NOT NULL, price FLOAT NOT NULL, VAT FLOAT NOT NULL DEFAULT 5.0)")
@@ -543,6 +543,7 @@ def edit_customer():
     print("1. Change name")
     print("2. Change email")
     print("3. Change phone number")
+    print("4. Change password")
     
     ch = int(input("Enter your choice: "))
     
@@ -570,6 +571,24 @@ def edit_customer():
             print("Phone number changed successfully!")
             print()
             break
+        
+        elif ch == 4:
+            password = getpass("Enter your current password: ")
+            db.execute("SELECT passhash FROM auth WHERE username = %s", (login_username,))
+            rs = db.fetchall()[0][0]
+            try:
+                c = pass_verify(rs, password)
+            except argon2.exceptions.VerifyMismatchError:
+                sys.exit("Incorrect password!")
+            
+            if c == True:
+                newpass = getpass("Enter new password: ")
+                passhash = pass_hasher(newpass)
+                db.execute("UPDATE auth SET passhash = %s WHERE username = %s", (passhash, login_username))
+                cdb.commit()
+                print("Password changed successfully!")
+                print()
+                break
             
         elif ch == 0:
             break
