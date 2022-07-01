@@ -700,7 +700,9 @@ def logout():
     global login_username
     login_status = False
     login_username = None
+    print("Thank You for using Netflix Simulator!")
     sys.exit("Successfully logged out!")
+    
 
 
 def search_content(c):
