@@ -6,11 +6,11 @@ import sys
 os.system("cls")  # Clear the whole terminal before starting app
 
 print("""
-███    ██ ███████ ████████ ███████ ██      ██ ██   ██     ███████ ██ ███    ███ ██    ██ ██       █████  ████████  ██████  ██████  
-████   ██ ██         ██    ██      ██      ██  ██ ██      ██      ██ ████  ████ ██    ██ ██      ██   ██    ██    ██    ██ ██   ██ 
-██ ██  ██ █████      ██    █████   ██      ██   ███       ███████ ██ ██ ████ ██ ██    ██ ██      ███████    ██    ██    ██ ██████  
-██  ██ ██ ██         ██    ██      ██      ██  ██ ██           ██ ██ ██  ██  ██ ██    ██ ██      ██   ██    ██    ██    ██ ██   ██ 
-██   ████ ███████    ██    ██      ███████ ██ ██   ██     ███████ ██ ██      ██  ██████  ███████ ██   ██    ██     ██████  ██   ██ 
+███    ██ ███████ ████████ ███████ ██      ██ ██   ██
+████   ██ ██         ██    ██      ██      ██  ██ ██ 
+██ ██  ██ █████      ██    █████   ██      ██   ███  
+██  ██ ██ ██         ██    ██      ██      ██  ██ ██ 
+██   ████ ███████    ██    ██      ███████ ██ ██   ██
 """)
 
 if not sys.warnoptions:
@@ -40,18 +40,18 @@ try:
     import datetime  # Get current date and time 
     import time  # Used for debugging purposes
     import termcolor  # Color the output in the terminal
-    import base64  # Used for Gmall + OAuth2 in Python
-    import imaplib  # Used for Gmall + OAuth2 in Python
-    import json  # Used for Gmall + OAuth2 in Python
-    import smtplib  # Used for Gmall + OAuth2 in Python
-    import urllib.parse  # Used for Gmall + OAuth2 in Python
-    import urllib.request  # Used for Gmall + OAuth2 in Python
-    import lxml  # Used for Gmall + OAuth2 in Python
+    import base64  # Used for Gmail + OAuth2 in Python
+    import imaplib  # Used for Gmail + OAuth2 in Python
+    import json  # Used for Gmail + OAuth2 in Python
+    import smtplib  # Used for Gmail + OAuth2 in Python
+    import urllib.parse  # Used for Gmail + OAuth2 in Python
+    import urllib.request  # Used for Gmail + OAuth2 in Python
+    import lxml  # Used for Gmail + OAuth2 in Python
     import random  # Used for generation of OTPs
-    from getpass import getpass  # Mask password while they are being inputted
+    from getpass import getpass  # Mask passwords while they are being inputted
     from mysql.connector import connect  # Connect to MySQL Server
-    from email.mime.multipart import MIMEMultipart  # Used for Gmall + OAuth2 in Python
-    from email.mime.text import MIMEText  # Used for Gmall + OAuth2 in Python
+    from email.mime.multipart import MIMEMultipart  # Used for Gmail + OAuth2 in Python
+    from email.mime.text import MIMEText  # Used for Gmail + OAuth2 in Python
 
 except:
     sys.exit("Unable to import required dependencies")  # Exit if modules cannot be imported
@@ -73,7 +73,7 @@ db = cdb.cursor()  # Creating the cursor for the MySQL Server
 db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT NULL, title LONGTEXT NOT NULL, type VARCHAR(10) NOT NULL, rating VARCHAR(15) NOT NULL, release_year YEAR NOT NULL, actor1 CHAR(5) NOT NULL, actor2 CHAR(5) NOT NULL, actor3 CHAR(5) NOT NULL, actor4 CHAR(5) NOT NULL, director CHAR(5) NOT NULL, category VARCHAR(255) NOT NULL, imdb VARCHAR(20) NOT NULL, runtime VARCHAR(50) NOT NULL, description LONGTEXT NOT NULL, language VARCHAR(255) NOT NULL, price FLOAT NOT NULL, VAT FLOAT NOT NULL DEFAULT 5.0)")
 db.execute("CREATE TABLE IF NOT EXISTS actors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
 db.execute("CREATE TABLE IF NOT EXISTS directors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
-db.execute("CREATE TABLE IF NOT EXISTS customers(name LONGTEXT NOT NULL, email LONGTEXT NOT NULL, phone_number LONGTEXT NOT NULL, username LONGTEXT NOT NULL, country_Code CHAR(3) NOT NULL, balance FLOAT NOT NULL DEFAULT 0.0, PRIMARY KEY index_username(username(100)))")
+db.execute("CREATE TABLE IF NOT EXISTS customers(name LONGTEXT NOT NULL, email LONGTEXT NOT NULL, phone_number LONGTEXT NOT NULL, username LONGTEXT NOT NULL, country_code CHAR(3) NOT NULL, balance FLOAT NOT NULL DEFAULT 0.0, PRIMARY KEY index_username(username(100)))")
 db.execute("CREATE TABLE IF NOT EXISTS auth(username LONGTEXT NOT NULL, passhash LONGTEXT NOT NULL, PRIMARY KEY index_username(username(100)))")
 db.execute("CREATE TABLE IF NOT EXISTS orders(id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL, customer_username LONGTEXT NOT NULL, date DATETIME)")
 db.execute("CREATE TABLE IF NOT EXISTS order_details(order_id BIGINT NOT NULL, content_id BIGINT NOT NULL, amount BIGINT NOT NULL)")
@@ -542,7 +542,7 @@ def edit_content():  # Edit existing content details
     elif c == 16:
         vat = float(input("Enter content VAT: "))
 
-        if price:
+        if vat:
             db.execute("UPDATE content SET vat = %s WHERE netflix_id = %s", (vat, nid))
             cdb.commit()
             print("VAT changed successfully!")
@@ -782,7 +782,7 @@ def add_credit():  # Add credit to the customer's account
     city = input("City: ")
     country = input("Country: ")
 
-    # Verifies that the credit card number is correct and card is not expired 
+    # Verifies that the credit card number is correct and card is not expired
     if luhn(ccno) == True and (datetime.datetime.now().month <= int(exdt[0:2]) or int(str(datetime.datetime.now().year)[2:]) <= int(exdt[3:])):
         db.execute("UPDATE customers SET balance = balance + %s WHERE username = %s", (amnt, login_username))
         cdb.commit()
@@ -816,7 +816,7 @@ def buy_now(nid):  # Buy content
         balance = db.fetchall()[0][0]
         price = get_price(nid)
         
-        if get_price(nid) <= balance:
+        if price <= balance:
             db.execute("INSERT INTO orders(customer_username, date) VALUES(%s, %s)", (login_username, datetime.datetime.now()))
             cdb.commit()
 
@@ -830,7 +830,7 @@ def buy_now(nid):  # Buy content
             print("Successfully bought content!")
         
         else:
-            # Time to add more credits (and break the bank)
+            # Time to add more credits (and break the bank :) )
             print("Insufficient credits!")
 
     else:
@@ -844,7 +844,7 @@ def list_all_bought():  # List out all content bought
     rs = db.fetchall()
     j = 1
     if len(rs) == 0:
-        # Go on, buy something and have fun :)
+        # Go on, buy something, and have fun :)
         print(termcolor.colored("Your purchase history looks empty :(", attrs=['bold']))
         print('\x1B[3m' + "What are you waiting for?" + '\x1B[0m')
     
