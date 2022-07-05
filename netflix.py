@@ -830,6 +830,7 @@ def buy_now(nid):  # Buy content
             print("Successfully bought content!")
         
         else:
+            # Time to add more credits (and break the bank)
             print("Insufficient credits!")
 
     else:
@@ -843,6 +844,7 @@ def list_all_bought():  # List out all content bought
     rs = db.fetchall()
     j = 1
     if len(rs) == 0:
+        # Go on, buy something and have fun :)
         print(termcolor.colored("Your purchase history looks empty :(", attrs=['bold']))
         print('\x1B[3m' + "What are you waiting for?" + '\x1B[0m')
     
@@ -867,6 +869,7 @@ def sudo_mode():  # SUDO MODE
     if str(input_otp) == otp:
         print("Access granted")
     else:
+        # Exit if OTP is incorrect
         sys.exit("Access denied - Incorrect OTP")
 
     # SUDO MODE WARNING
@@ -945,6 +948,7 @@ while True:
         if str(input_otp) == otp:
             print("Access granted")
         else:
+            # Exit if OTP is incorrect
             sys.exit("Access denied - Incorrect OTP")
         
         # ADMIN MODE Menu
@@ -1070,7 +1074,7 @@ while True:
                         break
 
                     elif co == 2:
-                        # Insert into cart to buy later
+                        # Add to cart
                         db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, sid, rs[s-1][1]))
                         cdb.commit()
                         print("Added to cart!")
@@ -1099,10 +1103,12 @@ while True:
                     ct = int(input("Enter your choice: "))
                     if ct == 1:
                         print()
+                        # Buy content
                         buy_now(nid)
                         break
                     
                     elif ct == 2:
+                        # Add to cart
                         db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, nid, rs[1]))
                         cdb.commit()
                         print("Added to cart!")
@@ -1133,10 +1139,12 @@ while True:
                     cr = int(input("Enter your choice: "))
                     if cr == 1:
                         print()
+                        # Buy content
                         buy_now(sid)
                         break
                 
                     elif cr == 2:
+                        # Add to cart
                         db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, sid, rs[s-1][1]))
                         cdb.commit()
                         print("Added to cart!")
@@ -1151,6 +1159,8 @@ while True:
  
         elif sch == '2':  # CART
             while True:
+                # Made using ANSI characters
+                # Check Bibliography for source
                 print("""                                
 ██████   █████  ██████  ████████ 
 ██      ██   ██ ██   ██    ██    
@@ -1159,6 +1169,7 @@ while True:
 ██████  ██   ██ ██   ██    ██    
                 """)
                 db.execute("SELECT DISTINCT * FROM cart WHERE username = %s", (login_username,))
+                # Select all content in cart without duplication
                 rs = db.fetchall()
                 
                 if len(rs) == 0:
@@ -1181,7 +1192,7 @@ while True:
                 if s == 1:
                     c = int(input("Enter content number: "))
                     sid = rs[c-1][1]
-                    list_info(sid)
+                    list_info(sid)  # List all info
 
                     c = int(input("Press 1 to buy now: "))
 
@@ -1216,7 +1227,7 @@ while True:
                 elif s == 0:
                     break
         
-        elif sch == '3':
+        elif sch == '3':  # Account Management Menu
             while True:
                 print()
                 print("1. Credit Management")
@@ -1254,7 +1265,7 @@ while True:
                     print()
                     break
 
-                elif t == 3:
+                elif t == 3:  # Edit customer details
                     edit_customer()
                     print()
                     break
@@ -1282,7 +1293,8 @@ while True:
                     break
 
         elif sch == '4':
-            # ABOUT THIS PROJECT
+            # Licenses and disclaimers
+            # and acknowledging everyone who has made this a huge success :)
             print(termcolor.colored("ABOUT THIS PROJECT", attrs=['bold']))
 
             print("""
@@ -1323,4 +1335,5 @@ Thank you to all those who have, directly or indirectly, lent a helping hand in 
             """)
 
         elif sch == '0':
-            logout()  # Exit the program. See ya soon!
+            logout()  # Exit the program
+            # See ya soon!
