@@ -46,7 +46,7 @@ try:
     import smtplib  # Used for Gmail + OAuth2 in Python
     import urllib.parse  # Used for Gmail + OAuth2 in Python
     import urllib.request  # Used for Gmail + OAuth2 in Python
-    import lxml  # Used for Gmail + OAuth2 in Python
+    import lxml.html  # Used for Gmail + OAuth2 in Python
     import random  # Used for generation of OTPs
     from getpass import getpass  # Mask passwords while they are being inputted
     from mysql.connector import connect  # Connect to MySQL Server
@@ -88,7 +88,7 @@ REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 GOOGLE_CLIENT_ID = '883495880858-pa24r44unorsao9if8gsvbcqrr2j44bc.apps.googleusercontent.com'
 GOOGLE_CLIENT_SECRET = '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'
-GOOGLE_REFRESH_TOKEN = '1//031ss_eVdJF8XCgYIARAAGAMSNwF-L9Ircikq_lAO5vUoc5FiQJnFYi4L7-6ZeZ2F-ZfW476Iu-K1KCx-tkFbpeYaMVf1RXFAckc'
+GOOGLE_REFRESH_TOKEN = '1//03BsS7Hm8PRasCgYIARAAGAMSNwF-L9IrwOeb0fYVc2qN6xNdgzD1LSqhcGwmXGI7gO53FTb0LX8tJ0IcEohYVBAjtlOY7C3kvUA'
 
 # GMAIL + OAUTH2 IN PYTHON GLOBAL VARIABLES END
 
@@ -887,11 +887,14 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
     """)
 
     # Confirmation to enter SUDO MODE
-    cfm = input("Enter 'I understand the implications of using this mode' over here, or type 'quit' to quit now:")
-    if cfm != 'I understand the implications of using this mode':
+    cfm = input("Enter 'I understand the implications of using this mode' over here, or type 'quit' to quit now: ")
+    if cfm == 'quit':
+        sys.exit("Application exited successfully!")
+
+    elif cfm != 'I understand the implications of using this mode':
         sys.exit("Wrong phrase entered!")
     
-    elif cfm == 'quit':
+    if cfm == 'quit':
         sys.exit("Application exited successfully!")
 
     else:
@@ -1070,6 +1073,7 @@ while True:
                     co = int(input("Enter your choice: "))
                     if co == 1:
                         print()
+                        # Buy content
                         buy_now(sid)
                         break
 
