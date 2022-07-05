@@ -894,9 +894,6 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
     elif cfm != 'I understand the implications of using this mode':
         sys.exit("Wrong phrase entered!")
     
-    if cfm == 'quit':
-        sys.exit("Application exited successfully!")
-
     else:
         print("TYPE 'quit' TO QUIT THE PROGRAM AT ANY TIME!")
         print("INCORRECT SQL QUERIES WILL AUTOMATICALLY EXIT THE PROGRAM")
