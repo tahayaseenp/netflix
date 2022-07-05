@@ -1,69 +1,68 @@
+# NETFLIX SIMULATOR 
+# AUTHOR: Taha Yaseen Parker
 import os
 import sys
-os.system("cls")
+os.system("cls")  # Clear the whole terminal before starting app
 print("""
-███    ██ ███████ ████████ ███████ ██      ██ ██   ██ 
-████   ██ ██         ██    ██      ██      ██  ██ ██  
-██ ██  ██ █████      ██    █████   ██      ██   ███   
-██  ██ ██ ██         ██    ██      ██      ██  ██ ██  
-██   ████ ███████    ██    ██      ███████ ██ ██   ██ 
+███    ██ ███████ ████████ ███████ ██      ██ ██   ██     ███████ ██ ███    ███ ██    ██ ██       █████  ████████  ██████  ██████  
+████   ██ ██         ██    ██      ██      ██  ██ ██      ██      ██ ████  ████ ██    ██ ██      ██   ██    ██    ██    ██ ██   ██ 
+██ ██  ██ █████      ██    █████   ██      ██   ███       ███████ ██ ██ ████ ██ ██    ██ ██      ███████    ██    ██    ██ ██████  
+██  ██ ██ ██         ██    ██      ██      ██  ██ ██           ██ ██ ██  ██  ██ ██    ██ ██      ██   ██    ██    ██    ██ ██   ██ 
+██   ████ ███████    ██    ██      ███████ ██ ██   ██     ███████ ██ ██      ██  ██████  ███████ ██   ██    ██     ██████  ██   ██ 
 """)
 
-if not sys.warnoptions:
-    import warnings
-    warnings.simplefilter("ignore")
 if sys.version_info[0] < 3:
     print("Please download Python3 from the link below")
     print("https://www.python.org/downloads/")
     input("Press any key to exit!")
     sys.exit("Python3 not installed")
 
-try:
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts mysql-connector-python")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts ipinfo")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts datetime")
-    os.system("pip3 install -U -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts cffi pip setuptools")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts argon2-cffi")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts termcolor")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts lxml")
+try:  # Install all required modules
+    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user mysql-connector-python")
+    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user ipinfo")
+    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user datetime")
+    os.system("pip3 install -U -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user cffi pip setuptools")
+    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user argon2-cffi")
+    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user termcolor")
+    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user lxml")
 except:
-    sys.exit("Unable to install required dependencies!")
+    sys.exit("Unable to install required dependencies!")  # Exit if modules cannot be installed
 
 try:
-    import argon2
-    import ipinfo
-    import datetime
-    import time
-    import termcolor
-    import base64
-    import imaplib
-    import json
-    import smtplib
-    import urllib.parse
-    import urllib.request
-    import lxml
-    import random
-    from getpass import getpass
-    from mysql.connector import connect
-    from email.mime.multipart import MIMEMultipart
-    from email.mime.text import MIMEText
-    from lxml import html
+    import argon2  # Password hashing module
+    import ipinfo  # Find details of IP address
+    import datetime  # Get current date and time 
+    import time  # Used for debugging purposes
+    import termcolor  # Color the output in the terminal
+    import base64  # Used for Gmall + OAuth2 in Python
+    import imaplib  # Used for Gmall + OAuth2 in Python
+    import json  # Used for Gmall + OAuth2 in Python
+    import smtplib  # Used for Gmall + OAuth2 in Python
+    import urllib.parse  # Used for Gmall + OAuth2 in Python
+    import urllib.request  # Used for Gmall + OAuth2 in Python
+    import lxml  # Used for Gmall + OAuth2 in Python
+    import random  # Used for generation of OTPs
+    from getpass import getpass  # Mask password while they are being inputted
+    from mysql.connector import connect  # Connect to MySQL Server
+    from email.mime.multipart import MIMEMultipart  # Used for Gmall + OAuth2 in Python
+    from email.mime.text import MIMEText  # Used for Gmall + OAuth2 in Python
 
 except:
-    sys.exit("Unable to import required dependencies")
+    sys.exit("Unable to import required dependencies")  # Exit if modules cannot be imported
 
+ip_details = ipinfo.getHandler("eb85c6b947bbc4").getDetails()  # Global variable for fetching IP address details
 
-ip_details = ipinfo.getHandler("eb85c6b947bbc4").getDetails()
+cdb = connect(host="localhost", user="root", password="17102005")  # Connecting to the MySQL server
+db = cdb.cursor()  # Creating the cursor for the MySQL Server
+db.execute("CREATE DATABASE IF NOT EXISTS netflix")  # Create the database if it doesn't exist
+cdb.commit()  # Save changes
+db.close()  # Close the cursor and ensure that the cursor object has no reference to its original connection object
+cdb.close()  # Close the connection to the server
 
-cdb = connect(host="localhost", user="root", password="root")
-db = cdb.cursor()
-db.execute("CREATE DATABASE IF NOT EXISTS netflix")
-cdb.commit()
-db.close()
-cdb.close()
+cdb = connect(host="localhost", user="root", password="17102005", database="netflix")  # Reopen connection to the MySQL server
+db = cdb.cursor()  # Creating the cursor for the MySQL Server
 
-cdb = connect(host="localhost", user="root", password="root", database="netflix")
-db = cdb.cursor()
+# TABLE CREATION START
 
 db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT NULL, title LONGTEXT NOT NULL, type VARCHAR(10) NOT NULL, rating VARCHAR(15) NOT NULL, release_year YEAR NOT NULL, actor1 CHAR(5) NOT NULL, actor2 CHAR(5) NOT NULL, actor3 CHAR(5) NOT NULL, actor4 CHAR(5) NOT NULL, director CHAR(5) NOT NULL, category VARCHAR(255) NOT NULL, imdb VARCHAR(20) NOT NULL, runtime VARCHAR(50) NOT NULL, description LONGTEXT NOT NULL, language VARCHAR(255) NOT NULL, price FLOAT NOT NULL, VAT FLOAT NOT NULL DEFAULT 5.0)")
 db.execute("CREATE TABLE IF NOT EXISTS actors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
@@ -75,6 +74,9 @@ db.execute("CREATE TABLE IF NOT EXISTS order_details(order_id BIGINT NOT NULL, c
 db.execute("CREATE TABLE IF NOT EXISTS cart(username LONGTEXT, netflix_id BIGINT NOT NULL, title LONGTEXT NOT NULL)")
 db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp LONGTEXT)")
 
+# TABLE CREATION END
+
+# GMAIL + OAUTH2 IN PYTHON GLOBAL VARIABLES START
 GOOGLE_ACCOUNTS_BASE_URL = 'https://accounts.google.com'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
@@ -82,8 +84,11 @@ GOOGLE_CLIENT_ID = '883495880858-pa24r44unorsao9if8gsvbcqrr2j44bc.apps.googleuse
 GOOGLE_CLIENT_SECRET = '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'
 GOOGLE_REFRESH_TOKEN = '1//031ss_eVdJF8XCgYIARAAGAMSNwF-L9Ircikq_lAO5vUoc5FiQJnFYi4L7-6ZeZ2F-ZfW476Iu-K1KCx-tkFbpeYaMVf1RXFAckc'
 
-login_status = False
+# GMAIL + OAUTH2 IN PYTHON GLOBAL VARIABLES END
 
+login_status = False  # Global Variable: Login Status
+
+# Global dictionary for actors
 actors = {}
 db.execute("SELECT * FROM actors")
 for i in db.fetchall():
@@ -91,6 +96,7 @@ for i in db.fetchall():
     value = i[1]
     actors.update({key: value})
 
+# Global dictionary for directors
 directors = {}
 db.execute("SELECT * FROM directors")
 for i in db.fetchall():
@@ -99,7 +105,7 @@ for i in db.fetchall():
     directors.update({key: value})
 
 
-# EMAIL DEFINITION START
+# EMAIL DEFINITIONS START
 def command_to_url(command):
     return '%s/%s' % (GOOGLE_ACCOUNTS_BASE_URL, command)
 
@@ -208,10 +214,10 @@ def send_mail(fromaddr, toaddr, subject, message):
     server.sendmail(fromaddr, toaddr, msg.as_string())
     server.quit()
 
-# EMAIL DEFINITION END
+# EMAIL DEFINITIONS END
 
 
-def record_checker(tablename, fieldname, variable):
+def record_checker(tablename, fieldname, variable):  # Check if a particular record exists in the one of the database's tables
     db.execute("SELECT {mycolumn} FROM {mytablename} WHERE {mycolumn} = %s".format(
         mycolumn=fieldname, mytablename=tablename), (variable,))
     rs = db.fetchall()
@@ -225,25 +231,25 @@ def record_checker(tablename, fieldname, variable):
             return False
 
 
-def get_price(nid):
+def get_price(nid):  # Get the final price of content using content ID
     db.execute("SELECT (price + ((price*vat) / 100)) 'Price' FROM content WHERE netflix_id = %s", (nid,))
     rs = db.fetchall()[0][0]
     return rs
 
 
-def pass_hasher(password):
+def pass_hasher(password):  # Hash a given password
     return argon2.PasswordHasher().hash(password)
 
 
-def pass_verify(hash, inputpass):
+def pass_verify(hash, inputpass):  # Verify that an inputted password and the hash are similar
     return argon2.PasswordHasher().verify(hash, inputpass)
 
 
-def gen_otp():
+def gen_otp():  # Generate an OTP
     return str(int(random.random()*1000000))
 
 
-def add_content():
+def add_content():  # Add content to the database
     netflix_id = int(input("Enter Netflix ID: "))
     title = input("Enter content title: ")
     print("Content types:")
@@ -262,12 +268,12 @@ def add_content():
     actor2 = input("Enter actor2 code (use AC000 for NULL): ")
     actor3 = input("Enter actor3 code (use AC000 for NULL): ")
     actor4 = input("Enter actor4 code (use AC000 for NULL): ")
-    rc1 = record_checker("actors", 'id', actor1)
+    rc1 = record_checker("actors", 'id', actor1)  # Check if the actor ID entered exists in the database
     rc2 = record_checker("actors", 'id', actor2)
     rc3 = record_checker("actors", 'id', actor3)
     rc4 = record_checker("actors", 'id', actor4)
     director = input("Enter director code: ")
-    rc5 = record_checker("directors", 'id', director)
+    rc5 = record_checker("directors", 'id', director)  # Check if the director ID entered exists in the database
     category = input("Enter content category: ")
     imdb = input("Enter IMDB rating: ")
     runtime = int(input("Enter content length in minutes: "))
@@ -276,43 +282,44 @@ def add_content():
     language = input("Enter content language: ")
     price = float(input("Enter content price: "))
     vat = float(input("Enter content VAT: "))
+    # Enter the record into the database only if all Actor ID's and Director ID exist
     db.execute("INSERT INTO content(netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                (netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)) if rc1 == True and rc2 == True and rc3 == True and rc4 == True and rc5 == True else print("Record not added!")
     cdb.commit()
 
 
-def add_actor():
+def add_actor():  # Add actors to the databse
     id = input("Enter actor ID: ")
     name = input("Enter actor's full name: ")
     db.execute("INSERT INTO actors VALUES(%s, %s)", (id, name))
     cdb.commit()
 
 
-def add_director():
+def add_director():  # Add directors to the database
     id = input("Enter director ID: ")
     name = input("Enter director's full name: ")
     db.execute("INSERT INTO directors VALUES(%s, %s)", (id, name))
     cdb.commit()
 
 
-def register_customer():
+def register_customer():  # Register a new customer
     name = input("Enter your Full Name: ")
     email = input("Enter your email: ")
     phone_number = input("Enter your phone number in international format: ")
     username = input("Enter your username: ")
-    password = getpass("Enter your password: ")
-    passhash = pass_hasher(password)
+    password = getpass("Enter your password: ")  # Mask the password while it's being inputted
+    passhash = pass_hasher(password)  # Hash the password
     db.execute("INSERT INTO customers (name, email, phone_number, username, country_code) VALUES(%s, %s, %s, %s, %s)",
                (name, email, phone_number, username, ip_details.country))
     cdb.commit()
     db.execute("INSERT INTO auth VALUES(%s, %s)", (username, passhash))
     cdb.commit()
-    os.system("cls")
+    os.system("cls")  # Clear the terminal window to remove any personal data
     print("You have successfully registered! Please run the program again and login!")
-    sys.exit(0)
+    sys.exit(0)  # Tells the system that the program exited successfully
 
 
-def edit_actor():
+def edit_actor():  # Edit an existing actor
     acn = input("Enter actor ID: ")
     db.execute("SELECT name FROM actors WHERE id = %s", (acn,))
     print("Actor name: ", db.fetchall()[0][0])
@@ -322,7 +329,7 @@ def edit_actor():
     print("Actor successfully edited")
 
 
-def edit_director():
+def edit_director():  # Edit an existing director
     drn = input("Enter director ID: ")
     db.execute("SELECT name FROM directors WHERE id = %s", (drn,))
     print("Director name: ", db.fetchall()[0][0])
@@ -332,7 +339,7 @@ def edit_director():
     print("Director successfully edited")
 
 
-def edit_content():
+def edit_content():  # Edit existing content details
     nid = input("Enter Netflix ID: ")
     db.execute("SELECT title FROM content WHERE netflix_id = %s", (nid,))
 
@@ -538,7 +545,7 @@ def edit_content():
             print("No VAT provided!")
 
 
-def edit_customer():
+def edit_customer():  # Edit customer details
     print()
     print("1. Change name")
     print("2. Change email")
@@ -577,9 +584,9 @@ def edit_customer():
             db.execute("SELECT passhash FROM auth WHERE username = %s", (login_username,))
             rs = db.fetchall()[0][0]
             try:
-                c = pass_verify(rs, password)
+                c = pass_verify(rs, password)  # Verify if current password matches the hash existing in the database
             except argon2.exceptions.VerifyMismatchError:
-                sys.exit("Incorrect password!")
+                sys.exit("Incorrect password!")  # Exit the program if the password entered was incorrect
             
             if c == True:
                 newpass = getpass("Enter new password: ")
@@ -594,7 +601,8 @@ def edit_customer():
             break
 
 
-def remove_actor():
+def remove_actor():  # Remove actors from the database
+    # Confirmation to ensure that no records are deleted by accident
     x = input("WARNING! YOU ARE ATTEMTPING TO REMOVE RECORDS FROM THE DATABASE! TYPE 'I know what I'm doing' (Case Sensitive) TO CONTINUE: ")
     if x != "I know what I'm doing":
         sys.exit("Wrong phrase entered!")
@@ -604,6 +612,7 @@ def remove_actor():
         db.execute("SELECT name FROM actors WHERE id = %s", (acn,))
         print("Actor name: ", db.fetchall()[0][0])
         print("Would you like to delete this actor? NOTE: THIS ACTION IS IRREVERSIBLE")
+        # Confirmation to ensure that no records are deleted by accident
         cfm = input("Type 'I Confirm' (Case Sensitive) to continue: ")
 
         if cfm != "I Confirm":
@@ -615,7 +624,8 @@ def remove_actor():
             print("Actor successfully deleted!")
 
 
-def remove_director():
+def remove_director():  # Remove directors from the database
+    # Confirmation to ensure that no records are deleted by accident
     x = input("WARNING! YOU ARE ATTEMTPING TO REMOVE RECORDS FROM THE DATABASE! TYPE 'I know what I'm doing' (Case Sensitive) TO CONTINUE: ")
     if x != "I know what I'm doing":
         sys.exit("Wrong phrase entered!")
@@ -625,6 +635,7 @@ def remove_director():
         db.execute("SELECT name FROM directors WHERE id = %s", (drn,))
         print("Director name: ", db.fetchall()[0][0])
         print("Would you like to delete this director? NOTE: THIS ACTION IS IRREVERSIBLE")
+        # Confirmation to ensure that no records are deleted by accident
         cfm = input("Type 'I Confirm' (Case Sensitive) to continue: ")
 
         if cfm != "I Confirm":
@@ -636,7 +647,8 @@ def remove_director():
             print("Director successfully deleted!")
 
 
-def remove_content():
+def remove_content():  # Remove content from the database
+    # Confirmation to ensure that no records are deleted by accident
     x = input("WARNING! YOU ARE ATTEMTPING TO REMOVE RECORDS FROM THE DATABASE! TYPE 'I know what I'm doing' (Case Sensitive) TO CONTINUE: ")
     if x != "I know what I'm doing":
         sys.exit("Wrong phrase entered!")
@@ -646,6 +658,7 @@ def remove_content():
         db.execute("SELECT name FROM content WHERE netflix_id = %s", (cid,))
         print("Content name: ", db.fetchall()[0][0])
         print("Would you like to delete this actor? NOTE: THIS ACTION IS IRREVERSIBLE")
+        # Confirmation to ensure that no records are deleted by accident
         cfm = input("Type 'I Confirm' (Case Sensitive) to continue: ")
         
         if cfm != "I Confirm":
@@ -657,7 +670,7 @@ def remove_content():
             print("Content successfully deleted!")
 
 
-def login():
+def login():  # Log in the user
     global login_status
     global login_username
     login_username = input("Enter your username: ")
@@ -675,11 +688,11 @@ def login():
             try:
                 c = pass_verify(i[1], password)
             except argon2.exceptions.VerifyMismatchError:
-                sys.exit("Incorrect password!")
+                sys.exit("Incorrect password!")  # Exit if password is incorrect
 
             if i[0] == login_username and c == True:
-                login_status = True
-                os.system('cls')
+                login_status = True  # Set login status to True
+                os.system('cls')  # Clear terminal to remove personal information
                 print("Login successful!")
                 print("Hello,", login_username + "!" "\n")
                 return login_status
@@ -695,17 +708,16 @@ def login():
         break
 
 
-def logout():
+def logout():  # Log out and exit the program
     global login_status
     global login_username
     login_status = False
     login_username = None
     print("Thank You for using Netflix Simulator!")
     sys.exit("Successfully logged out!")
-    
 
 
-def search_content(c):
+def search_content(c):  # Search for content when a part of the title is given
     db.execute("SELECT netflix_id, title FROM content WHERE title LIKE %s", ('%' + c + '%',))
     rs = db.fetchall()
     if len(rs) == 0:
@@ -714,7 +726,7 @@ def search_content(c):
         return rs
 
 
-def list_info(id):
+def list_info(id):  # List all the info about some content with given content ID
     db.execute("SELECT title, release_year, rating, type, runtime, language, actor1, actor2, actor3, actor4, director, imdb, description, (price + ((price*vat)/100)) FROM content WHERE netflix_id = %s", (id,))
     rs = db.fetchall()[0]
     print()
@@ -747,13 +759,13 @@ def list_info(id):
     print()
 
 
-def luhn(ccn):
+def luhn(ccn):  # Check if the credit card number entered is correct
     c = [int(x) for x in str(ccn)[::-2]]
     u2 = [(2*int(y))//10+(2*int(y)) % 10 for y in str(ccn)[-2::-2]]
     return sum(c+u2) % 10 == 0
 
 
-def add_credit():
+def add_credit():  # Add credit to the customer's account
     print("Add credit to your account")
     amnt = float(input("Amount to credit: "))
     ccno = input("Card number (without spaces or dashes): ")
@@ -764,7 +776,7 @@ def add_credit():
     city = input("City: ")
     country = input("Country: ")
 
-    if luhn(ccno) == True and datetime.datetime.now().month <= int(exdt[0:2]) and int(str(datetime.datetime.now().year)[2:]) <= int(exdt[3:]):
+    if luhn(ccno) == True and (datetime.datetime.now().month <= int(exdt[0:2]) or int(str(datetime.datetime.now().year)[2:]) <= int(exdt[3:])):  # Verifies that the credit card number is correct and card is not expired 
         db.execute("UPDATE customers SET balance = balance + %s WHERE username = %s", (amnt, login_username))
         cdb.commit()
 
@@ -774,7 +786,7 @@ def add_credit():
         print("Incorrect card details!")
         
 
-def check_if_bought(nid):
+def check_if_bought(nid):  # Check if content has already been bought with given content ID
     db.execute("SELECT content_id FROM order_details, orders, customers WHERE order_details.order_id=orders.id AND orders.customer_username=customers.username")
     rs = db.fetchall()
 
@@ -790,7 +802,7 @@ def check_if_bought(nid):
                 return False
 
 
-def buy_now(nid):
+def buy_now(nid):  # Buy content
     cib = check_if_bought(nid)
     if cib == False:
         db.execute("SELECT balance FROM customers WHERE username = %s", (login_username,))
@@ -817,7 +829,7 @@ def buy_now(nid):
         print("You already bought this content!")
 
 
-def list_all_bought():
+def list_all_bought():  # List out all content bought
     print(termcolor.colored("All owned content", attrs=['bold', 'underline']))
     print()
     db.execute("SELECT content_id FROM order_details, orders, customers WHERE order_details.order_id=orders.id AND orders.customer_username=customers.username")
@@ -837,8 +849,11 @@ def list_all_bought():
         print()
 
 
-def sudo_mode():
+def sudo_mode():  # SUDO MODE
+    # USE THIS MODE TO RUN ANY SQL COMMAND FROM THE TERMINAL
+    # THIS MODE IS NOT ACCESSIBLE TO NORMAL USERS AND IS HIDDEN FROM THE MENU
     otp = gen_otp()
+    # Send an OTP to the concerned people to enter SUDO MODE
     send_mail("tp.cs50test@gmail.com", "tahayaseen.p_uis@gemselearning.com", "Your Netflix Admin OTP",
               "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
     input_otp = int(input("Enter OTP: "))
@@ -847,6 +862,7 @@ def sudo_mode():
     else:
         sys.exit("Access denied - Incorrect OTP")
 
+    # SUDO MODE WARNING
     print("""
 ===============================================================================================================
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  WARNING  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -860,6 +876,7 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
 ===============================================================================================================
     """)
 
+    # Confirmation to enter SUDO MODE
     cfm = input("Enter 'I understand the implications of using this mode' over here, or type 'quit' to quit now:")
     if cfm != 'I understand the implications of using this mode':
         sys.exit("Wrong phrase entered!")
@@ -874,6 +891,7 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
         while True:
             cmd = input("Enter SQL Query: ")
             if cmd.startswith("SELECT"):
+                # Log the SQL Query, even if it doesn't run successfully
                 db.execute("INSERT INTO sudo_logs VALUES(%s, %s)", (cmd, datetime.datetime.now()))
                 cdb.commit()
                 db.execute(cmd)
@@ -883,6 +901,7 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
                     print()
             
             elif cmd.startswith("CREATE") or cmd.startswith("UPDATE") or cmd.startswith("INSERT") or cmd.startswith("DELETE"):
+                # Log the SQL Query, even if it doesn't run successfully
                 db.execute("INSERT INTO sudo_logs VALUES(%s, %s)", (cmd, datetime.datetime.now()))
                 cdb.commit()
 
@@ -895,6 +914,7 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
                 sys.exit("Application exited successfully!")
 
 
+# LOGIN MENU
 while True:
     print("1. SIGN IN")
     print("2. JOIN NETFLIX")
@@ -906,8 +926,12 @@ while True:
     elif ch == '2':
         register_customer()
 
-    elif ch == 'admin':
+    elif ch == 'admin':  # ADMIN MODE
+        # USE THIS MODE TO ADD, EDIT OR DELETE CONTENT FROM THE DATABASE
+        # THIS MODE IS NOT ACCESSIBLE TO NORMAL USERS AND IS HIDDEN FROM THE MENU
+
         otp = gen_otp()
+        # Send an OTP to the concerned people to enter ADMIN mode
         send_mail("tp.cs50test@gmail.com", "tahayaseen.p_uis@gemselearning.com", "Your Netflix Admin OTP",
                   "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
         input_otp = int(input("Enter OTP: "))
@@ -916,6 +940,7 @@ while True:
         else:
             sys.exit("Access denied - Incorrect OTP")
         
+        #ADMIN MODE Menu
         while True:
             print("1. Add Functions")
             print("2. Edit Functions")
@@ -993,9 +1018,10 @@ while True:
     break
 
 while True:
-    if login_status != True:
+    if login_status != True:  # Check if user has logged in
         sys.exit("Please login to continue")        
     else:
+        # MAIN MENU
         print()
         print("1. Search for content")
         print("2. View Cart")
@@ -1015,7 +1041,7 @@ while True:
             if ch == 1:
                 while True:
                     name = input("Enter content title to search: ")
-                    rs = search_content(name)
+                    rs = search_content(name)  # Search for content using (part of) title
                     if rs == "No content found!":
                         print("No content found!")
                         print()
@@ -1037,7 +1063,7 @@ while True:
                         break
 
                     elif co == 2:
-                        db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, sid, rs[s-1][1]))
+                        db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, sid, rs[s-1][1]))  # Insert into card to buy later
                         cdb.commit()
                         print("Added to cart!")
                         print()
@@ -1048,6 +1074,7 @@ while True:
 
             elif ch == 2:
                 while True:
+                    # Search using Content ID
                     nid = int(input("Enter Netflix ID: "))
                     db.execute("SELECT netflix_id, title FROM content WHERE netflix_id = %s", (nid,))
                     rs = db.fetchall()
@@ -1079,6 +1106,7 @@ while True:
                 
             elif ch == 3:
                 while True:
+                    # List all the content in the database, for those who can never decide on what to watch
                     db.execute("SELECT netflix_id, title FROM content ORDER BY title")
                     rs = db.fetchall()
                     print()
@@ -1113,7 +1141,7 @@ while True:
             elif ch == 0:
                 continue
  
-        elif sch == '2':
+        elif sch == '2':  # CART
             while True:
                 print("""                                
 ██████   █████  ██████  ████████ 
@@ -1126,7 +1154,7 @@ while True:
                 rs = db.fetchall()
                 
                 if len(rs) == 0:
-                    print(termcolor.colored("Your cart looks empty :(", attrs=['bold']))
+                    print(termcolor.colored("Your cart looks empty :(", attrs=['bold']))  # C'mon, buy movies and TV Shows and add some to the cart to buy later
                     print('\x1B[3m' + "What are you waiting for?" + '\x1B[0m')
                     print()
                     break
@@ -1151,7 +1179,7 @@ while True:
                     if c == 1:
                         print()
                         buy_now(sid)
-                        db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))
+                        db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))  # Delete content from cart when it is bought
                         cdb.commit()
                         break
                     
@@ -1161,13 +1189,13 @@ while True:
                 elif s == 2:
                     c = int(input("Enter content number: "))
                     sid = rs[c-1][1]
-                    db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))
+                    db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))  # Delete certain content from cart ("You COULD do that.. But why? Why would you do that? Why would you do any of that?")
                     cdb.commit()
                     print("Successfully deleted content!")
                     print()
 
                 elif s == 3:
-                    db.execute("DELETE FROM cart WHERE username = %s", (login_username,))
+                    db.execute("DELETE FROM cart WHERE username = %s", (login_username,))  # Delete all content from cart ("You COULD do that.. But why? Why would you do that? Why would you do any of that?")
                     cdb.commit()
                     print("Successfully emptied cart!")
                     print()
@@ -1193,7 +1221,7 @@ while True:
 
                     v = int(input("Enter your choice: "))
                     
-                    if v == 1:
+                    if v == 1:  # Check current balance
                         db.execute("SELECT balance FROM customers WHERE username = %s", (login_username,))
                         rs = db.fetchall()[0][0]
                         balance = "AED " + str(rs)
@@ -1201,7 +1229,7 @@ while True:
                         print()
                         break
 
-                    elif v == 2:
+                    elif v == 2:  # Add credits [and break the bank :) ]
                         add_credit()
                         print()
                         break
@@ -1209,7 +1237,7 @@ while True:
                     elif v == 0:
                         break
                 
-                elif t == 2:
+                elif t == 2:  # List all the good content you've bought
                     list_all_bought()
                     print()
                     break
@@ -1219,17 +1247,19 @@ while True:
                     print()
                     break
 
-                elif t == 4:
+                elif t == 4:  # Delete your account (NOOOOOOOOOO.....PLEASE DON'T LEAVE US😭😭)
                     print("WARNING: THIS WILL DELETE YOUR ACCOUNT PERMANENTLY!")
                     print("YOU WILL LOSE ACCESS TO ALL MOVIES BOUGHT!")
                     print("MOVIES PREVIOUSLY BOUGHT WILL HAVE TO BE BOUGHT AGAIN!")
                     print("CURRENT BALANCE WILL NOT BE REFUNDED!")
+                    # Confirmation to delete account [You really wanna leave us? :_ _( ]
                     confirm = input("TO PROCEED, TYPE 'I confirm the deletion' (Case Sensitive): ")
 
                     if confirm != 'I confirm the deletion':
                         sys.exit("Wrong phrase entered!")
                     
                     else:
+                        # Delete account and exit the program
                         db.execute("DELETE FROM customers WHERE username = %s", (login_username,))
                         cdb.commit()
                         db.execute("DELETE FROM auth WHERE username = %s", (login_username,))
@@ -1240,6 +1270,7 @@ while True:
                     break
 
         elif sch == '4':
+            # ABOUT THIS PROJECT
             print(termcolor.colored("ABOUT THIS PROJECT", attrs=['bold']))
 
             print("""
@@ -1267,11 +1298,17 @@ Many thanks to the developers of the following Python libraries used in this pro
     and many more...
     
 Many thanks to Seppe "Macuyiko" vanden Broucke for making public the code to send electronic mails with OAuth2 and Gmail in Python.
+Read more at https://blog.macuyiko.com/post/2016/how-to-send-html-mails-with-oauth2-and-gmail-in-python.html
+
+Thanks to Reddit user 'alexnag26' (https://www.reddit.com/user/alexnag26/) for providing the data used in the database.
+The data can be found at https://drive.google.com/drive/folders/1Xh-qE7mV8zhFhrPTDWLvgIRUUgrNWmXv?usp=sharing
 
 The author would like to express his sincere gratitude to Mrs. Shenooja Pareed for her valuable guidance, comments and suggestions.
 
-The author would also to thank all those who have, directly or indirectly, lent a helping hand in the successful completion of this project.
+Thank you to all those who spent their valuable time to find bugs and test the program in every possible use case. 
+
+Thank you to all those who have, directly or indirectly, lent a helping hand in the successful completion of this project.
             """)
 
         elif sch == '0':
-            logout()
+            logout() # Exit the program. See ya soon!
