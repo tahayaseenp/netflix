@@ -1,8 +1,10 @@
 # NETFLIX SIMULATOR 
 # AUTHOR: Taha Yaseen Parker
+
 import os
 import sys
 os.system("cls")  # Clear the whole terminal before starting app
+
 print("""
 ███    ██ ███████ ████████ ███████ ██      ██ ██   ██     ███████ ██ ███    ███ ██    ██ ██       █████  ████████  ██████  ██████  
 ████   ██ ██         ██    ██      ██      ██  ██ ██      ██      ██ ████  ████ ██    ██ ██      ██   ██    ██    ██    ██ ██   ██ 
@@ -10,6 +12,10 @@ print("""
 ██  ██ ██ ██         ██    ██      ██      ██  ██ ██           ██ ██ ██  ██  ██ ██    ██ ██      ██   ██    ██    ██    ██ ██   ██ 
 ██   ████ ███████    ██    ██      ███████ ██ ██   ██     ███████ ██ ██      ██  ██████  ███████ ██   ██    ██     ██████  ██   ██ 
 """)
+
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
 
 if sys.version_info[0] < 3:
     print("Please download Python3 from the link below")
@@ -776,7 +782,8 @@ def add_credit():  # Add credit to the customer's account
     city = input("City: ")
     country = input("Country: ")
 
-    if luhn(ccno) == True and (datetime.datetime.now().month <= int(exdt[0:2]) or int(str(datetime.datetime.now().year)[2:]) <= int(exdt[3:])):  # Verifies that the credit card number is correct and card is not expired 
+    # Verifies that the credit card number is correct and card is not expired 
+    if luhn(ccno) == True and (datetime.datetime.now().month <= int(exdt[0:2]) or int(str(datetime.datetime.now().year)[2:]) <= int(exdt[3:])):
         db.execute("UPDATE customers SET balance = balance + %s WHERE username = %s", (amnt, login_username))
         cdb.commit()
 
@@ -940,7 +947,7 @@ while True:
         else:
             sys.exit("Access denied - Incorrect OTP")
         
-        #ADMIN MODE Menu
+        # ADMIN MODE Menu
         while True:
             print("1. Add Functions")
             print("2. Edit Functions")
@@ -1063,7 +1070,8 @@ while True:
                         break
 
                     elif co == 2:
-                        db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, sid, rs[s-1][1]))  # Insert into card to buy later
+                        # Insert into cart to buy later
+                        db.execute("INSERT INTO cart VALUES(%s, %s, %s)", (login_username, sid, rs[s-1][1]))
                         cdb.commit()
                         print("Added to cart!")
                         print()
@@ -1154,7 +1162,8 @@ while True:
                 rs = db.fetchall()
                 
                 if len(rs) == 0:
-                    print(termcolor.colored("Your cart looks empty :(", attrs=['bold']))  # C'mon, buy movies and TV Shows and add some to the cart to buy later
+                    # C'mon, buy movies and TV Shows and add some to the cart to buy later
+                    print(termcolor.colored("Your cart looks empty :(", attrs=['bold']))
                     print('\x1B[3m' + "What are you waiting for?" + '\x1B[0m')
                     print()
                     break
@@ -1179,7 +1188,8 @@ while True:
                     if c == 1:
                         print()
                         buy_now(sid)
-                        db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))  # Delete content from cart when it is bought
+                        # Delete content from cart when it is bought
+                        db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))
                         cdb.commit()
                         break
                     
@@ -1189,13 +1199,15 @@ while True:
                 elif s == 2:
                     c = int(input("Enter content number: "))
                     sid = rs[c-1][1]
-                    db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))  # Delete certain content from cart ("You COULD do that.. But why? Why would you do that? Why would you do any of that?")
+                    # Delete certain content from cart ("You COULD do that.. But why? Why would you do that? Why would you do any of that?")
+                    db.execute("DELETE FROM cart WHERE username = %s AND netflix_id = %s", (login_username, sid))
                     cdb.commit()
                     print("Successfully deleted content!")
                     print()
 
                 elif s == 3:
-                    db.execute("DELETE FROM cart WHERE username = %s", (login_username,))  # Delete all content from cart ("You COULD do that.. But why? Why would you do that? Why would you do any of that?")
+                    # Delete all content from cart ("You COULD do that.. But why? Why would you do that? Why would you do any of that?")
+                    db.execute("DELETE FROM cart WHERE username = %s", (login_username,))
                     cdb.commit()
                     print("Successfully emptied cart!")
                     print()
@@ -1280,7 +1292,7 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-
 Netflix is a registered trademark of Netflix Inc.
 The Netflix service, including all content provided on the Netflix service, is protected by copyright, trade secret or other intellectual property laws and treaties.
 
-Gmail™ email service is a registered trademark of Google LLC
+Gmail™ email service is a registered trademark of Google LLC.
 
 Other company and product names mentioned herein are trademarks of their respective companies.
 
@@ -1311,4 +1323,4 @@ Thank you to all those who have, directly or indirectly, lent a helping hand in 
             """)
 
         elif sch == '0':
-            logout() # Exit the program. See ya soon!
+            logout()  # Exit the program. See ya soon!
