@@ -18,8 +18,7 @@ Other company and product names mentioned herein are trademarks of their respect
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-This is a development version of the project. The author ackowledges that there can be many improvements done, but due to time contstraints, they have been left open to be worked upon.
-For the purposes of this project, the following code is more than enough to satisfy the requirements of CBSE. If you'd like to contribute, please edit the code and create a pull request at the project page.
+This is a development version of the project. The author ackowledges that there can be many improvements done, but due to time contstraints, they have been left open to be worked upon. For the purposes of this project, the following code is more than enough to satisfy the requirements of CBSE. If you'd like to contribute, please edit the code and create a pull request at the project page.
 """
 import os
 import sys
@@ -314,6 +313,7 @@ def add_content():  # Add content to the database
     cdb.commit()
     print("Content successfully added!")
 
+
 def add_actor():  # Add actors to the database
     id = input("Enter actor ID: ")
     name = input("Enter actor's full name: ")
@@ -328,6 +328,7 @@ def add_director():  # Add directors to the database
     db.execute("INSERT INTO directors VALUES(%s, %s)", (id, name))
     cdb.commit()
     print("Director successfully added!")
+
 
 def register_customer():  # Register a new customer
     name = input("Enter your Full Name: ")
@@ -1041,7 +1042,6 @@ while True:
 
             elif a == 0:
                 sys.exit("Application exited successfully!")
-
 
     elif ch == 'sudo':
         sudo_mode()
