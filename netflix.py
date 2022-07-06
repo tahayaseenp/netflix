@@ -1,6 +1,26 @@
 # NETFLIX SIMULATOR 
 # AUTHOR: Taha Yaseen Parker
+"""
+DISCLAIMER
+Netflix Simulator © 2022 by Taha Yaseen Parker is licensed under Attribution-NonCommercial-NoDerivatives 4.0 International.
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/
 
+Netflix Simulator is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Netflix Inc., or any of its subsidiaries or its affiliates.
+The official Netflix website can be found at http://www.netflix.com.
+
+The name Netflix as well as related names, marks, emblems, and images are registered trademarks of Netflix Inc.
+The Netflix service, including all content provided on the Netflix service, is protected by copyright, trade secret or other intellectual property laws and treaties.
+
+Gmail™ email service is a registered trademark of Google LLC.
+
+Other company and product names mentioned herein are trademarks of their respective companies.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+This is a development version of the project. The author ackowledges that there can be many improvements done, but due to time contstraints, they have been left open to be worked upon.
+For the purposes of this project, the following code is more than enough to satisfy the requirements of CBSE. If you'd like to contribute, please edit the code and create a pull request at the project page.
+"""
 import os
 import sys
 os.system("cls")  # Clear the whole terminal before starting app
@@ -292,13 +312,14 @@ def add_content():  # Add content to the database
     db.execute("INSERT INTO content(netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                (netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)) if rc1 == True and rc2 == True and rc3 == True and rc4 == True and rc5 == True else print("Record not added!")
     cdb.commit()
-
+    print("Content successfully added!")
 
 def add_actor():  # Add actors to the database
     id = input("Enter actor ID: ")
     name = input("Enter actor's full name: ")
     db.execute("INSERT INTO actors VALUES(%s, %s)", (id, name))
     cdb.commit()
+    print("Actor successfully added!")
 
 
 def add_director():  # Add directors to the database
@@ -306,7 +327,7 @@ def add_director():  # Add directors to the database
     name = input("Enter director's full name: ")
     db.execute("INSERT INTO directors VALUES(%s, %s)", (id, name))
     cdb.commit()
-
+    print("Director successfully added!")
 
 def register_customer():  # Register a new customer
     name = input("Enter your Full Name: ")
@@ -332,7 +353,7 @@ def edit_actor():  # Edit an existing actor
     new = input("Enter new actor name: ")
     db.execute("UPDATE actors SET name = %s WHERE id = %s", (new, acn)) if acn else print("Actor editing failed!")
     cdb.commit()
-    print("Actor successfully edited")
+    print("Actor successfully edited!")
 
 
 def edit_director():  # Edit an existing director
@@ -342,7 +363,7 @@ def edit_director():  # Edit an existing director
     new = input("Enter new director name: ")
     db.execute("UPDATE directors SET name = %s WHERE id = %s", (new, drn)) if drn else print("Director editing failed!")
     cdb.commit()
-    print("Director successfully edited")
+    print("Director successfully edited!")
 
 
 def edit_content():  # Edit existing content details
@@ -956,6 +977,7 @@ while True:
             print("1. Add Functions")
             print("2. Edit Functions")
             print("3. Delete functions")
+            print("0. Exit")
             a = int(input("Enter your choice: "))
             if a == 1:
                 while True:
@@ -1016,6 +1038,10 @@ while True:
 
                     elif d == 0:
                         break
+
+            elif a == 0:
+                sys.exit("Application exited successfully!")
+
 
     elif ch == 'sudo':
         sudo_mode()
