@@ -1,25 +1,6 @@
 # NETFLIX SIMULATOR 
 # AUTHOR: Taha Yaseen Parker
-"""
-DISCLAIMER
-Netflix Simulator © 2022 by Taha Yaseen Parker is licensed under Attribution-NonCommercial-NoDerivatives 4.0 International.
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/
 
-Netflix Simulator is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Netflix Inc., or any of its subsidiaries or its affiliates.
-The official Netflix website can be found at http://www.netflix.com.
-
-The name Netflix as well as related names, marks, emblems, and images are registered trademarks of Netflix Inc.
-The Netflix service, including all content provided on the Netflix service, is protected by copyright, trade secret or other intellectual property laws and treaties.
-
-Gmail™ email service is a registered trademark of Google LLC.
-
-Other company and product names mentioned herein are trademarks of their respective companies.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-This is a development version of the project. The author ackowledges that there can be many improvements done, but due to time contstraints, they have been left open to be worked upon. For the purposes of this project, the following code is more than enough to satisfy the requirements of CBSE. If you'd like to contribute, please edit the code and create a pull request at the project page.
-"""
 import os
 import sys
 os.system("cls")  # Clear the whole terminal before starting app
@@ -43,17 +24,19 @@ if sys.version_info[0] < 3:
     sys.exit("Python3 not installed")
 
 try:  # Install all required modules
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user mysql-connector-python")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user ipinfo")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user datetime")
-    os.system("pip3 install -U -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user cffi pip setuptools")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user argon2-cffi")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user termcolor")
-    os.system("pip3 install -q --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user lxml")
+    print("Installing dependencies...")
+    os.system("pip3 install -qqq --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user --no-python-version-warning --no-input --no-warn-script-location mysql-connector-python")
+    os.system("pip3 install -qqq --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user --no-python-version-warning --no-input --no-warn-script-location ipinfo")
+    os.system("pip3 install -qqq --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user --no-python-version-warning --no-input --no-warn-script-location datetime")
+    os.system("python -m pip install -U -qqq --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user --no-python-version-warning --no-input --no-warn-script-location cffi pip setuptools")
+    os.system("pip3 install -qqq --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user --no-python-version-warning --no-input --no-warn-script-location argon2-cffi")
+    os.system("pip3 install -qqq --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user --no-python-version-warning --no-input --no-warn-script-location termcolor")
+    os.system("pip3 install -qqq --disable-pip-version-check --no-cache-dir --no-color --no-warn-conflicts --user --no-python-version-warning --no-input --no-warn-script-location lxml")
 except:
     sys.exit("Unable to install required dependencies!")  # Exit if modules cannot be installed
 
 try:
+    print("Importing dependencies...")
     import argon2  # Password hashing module
     import ipinfo  # Find details of IP address
     import datetime  # Get current date and time 
@@ -77,18 +60,19 @@ except:
 
 ip_details = ipinfo.getHandler("eb85c6b947bbc4").getDetails()  # Global variable for fetching IP address details
 
-cdb = connect(host="localhost", user="root", password="17102005")  # Connecting to the MySQL server
+cdb = connect(host="localhost", user="TP", password="17102005")  # Connecting to the MySQL server
 db = cdb.cursor()  # Creating the cursor for the MySQL Server
 db.execute("CREATE DATABASE IF NOT EXISTS netflix")  # Create the database if it doesn't exist
 cdb.commit()  # Save changes
 db.close()  # Close the cursor and ensure that the cursor object has no reference to its original connection object
 cdb.close()  # Close the connection to the server
 
-cdb = connect(host="localhost", user="root", password="17102005", database="netflix")  # Reopen connection to the MySQL server
+cdb = connect(host="localhost", user="TP", password="17102005", database="netflix")  # Reopen connection to the MySQL server
 db = cdb.cursor()  # Creating the cursor for the MySQL Server
 
 # TABLE CREATION START
 
+print("Setting up database...")
 db.execute("CREATE TABLE IF NOT EXISTS content(netflix_id BIGINT PRIMARY KEY NOT NULL, title LONGTEXT NOT NULL, type VARCHAR(10) NOT NULL, rating VARCHAR(15) NOT NULL, release_year YEAR NOT NULL, actor1 CHAR(5) NOT NULL, actor2 CHAR(5) NOT NULL, actor3 CHAR(5) NOT NULL, actor4 CHAR(5) NOT NULL, director CHAR(5) NOT NULL, category VARCHAR(255) NOT NULL, imdb VARCHAR(20) NOT NULL, runtime VARCHAR(50) NOT NULL, description LONGTEXT NOT NULL, language VARCHAR(255) NOT NULL, price FLOAT NOT NULL, VAT FLOAT NOT NULL DEFAULT 5.0)")
 db.execute("CREATE TABLE IF NOT EXISTS actors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
 db.execute("CREATE TABLE IF NOT EXISTS directors(id CHAR(5) PRIMARY KEY NOT NULL, name LONGTEXT)")
@@ -100,6 +84,17 @@ db.execute("CREATE TABLE IF NOT EXISTS cart(username LONGTEXT, netflix_id BIGINT
 db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp LONGTEXT)")
 
 # TABLE CREATION END
+
+# ADDING CONTENT START
+
+print("Adding information to database...")
+info = open("info.txt", "rt", encoding='utf-8')
+for l in info:
+    db.execute(l)
+    cdb.commit()
+info.close()
+
+# ADDING CONTENT END
 
 # GMAIL + OAUTH2 IN PYTHON GLOBAL VARIABLES START
 GOOGLE_ACCOUNTS_BASE_URL = 'https://accounts.google.com'
@@ -948,7 +943,7 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
 
 # LOGIN MENU
 while True:
-    print("1. SIGN IN")
+    print("\n1. SIGN IN")
     print("2. JOIN NETFLIX")
     print("0. Exit")
     ch = input("Enter your choice: ")
@@ -1357,7 +1352,7 @@ Read more at https://blog.macuyiko.com/post/2016/how-to-send-html-mails-with-oau
 Thanks to Reddit user 'alexnag26' (https://www.reddit.com/user/alexnag26/) for providing the data used in the database.
 The data can be found at https://drive.google.com/drive/folders/1Xh-qE7mV8zhFhrPTDWLvgIRUUgrNWmXv?usp=sharing
 
-The author would like to express his sincere gratitude to Mrs. Shenooja Pareed for her valuable guidance, comments and suggestions.
+The author would like to express his sincere gratitude to Mrs. Shenooja Pareed for her valuable guidance, comments, and suggestions.
 
 Thank you to all those who spent their valuable time to find bugs and test the program in every possible use case. 
 
