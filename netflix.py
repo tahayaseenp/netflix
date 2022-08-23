@@ -89,14 +89,14 @@ db.execute("CREATE TABLE IF NOT EXISTS sudo_logs(query LONGTEXT, query_timestamp
 
 try:
     print("Adding information to database...")
-    info = open("info.txt", "rt", encoding='utf-8')  # Open the text file for executing SQL commands to insert default data
+    info = open('info.txt', encoding='utf-8')  # Open the text file for executing SQL commands to insert default data
     for l in info:  # For every line in the text file
         db.execute(l)  # Execute line
         cdb.commit()  # Save the changes
     info.close()  # Close the file
 
 except:
-    print("Fatal error occured! Information text is unavailable.")
+    print("Fatal error occurred! Information text is unavailable.")
     sys.exit("Download the program again from https://github.com/tahayaseenp/CBSEProj without deleting any files.")
 
 # ADDING CONTENT END
