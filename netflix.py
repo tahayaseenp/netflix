@@ -105,9 +105,9 @@ except:
 GOOGLE_ACCOUNTS_BASE_URL = 'https://accounts.google.com'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
-GOOGLE_CLIENT_ID = '883495880858-pa24r44unorsao9if8gsvbcqrr2j44bc.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = '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'
-GOOGLE_REFRESH_TOKEN = '1//03BsS7Hm8PRasCgYIARAAGAMSNwF-L9IrwOeb0fYVc2qN6xNdgzD1LSqhcGwmXGI7gO53FTb0LX8tJ0IcEohYVBAjtlOY7C3kvUA'
+GOOGLE_CLIENT_ID = '883495880858-3mkra8pcc1rrbqrj48f8sp5fbbr8kkk0.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = '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'
+GOOGLE_REFRESH_TOKEN = '1//03F6y-Qzjm-spCgYIARAAGAMSNwF-L9Ir2B0_oWLNdHFhkFnjXBwZE6evUOzoF9KEqCInmmzRh8xTWDZZcNCzI-yzilAwCA19FMQ'
 
 # GMAIL + OAUTH2 IN PYTHON GLOBAL VARIABLES END
 
@@ -885,7 +885,7 @@ def sudo_mode():  # SUDO MODE
     # THIS MODE IS NOT ACCESSIBLE TO NORMAL USERS AND IS HIDDEN FROM THE MENU
     otp = gen_otp()
     # Send an OTP to the concerned people to enter SUDO MODE
-    send_mail("tp.cs50test@gmail.com", "tahayaseen.p_uis@gemselearning.com", "Your Netflix Admin OTP",
+    send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP",
               "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
     input_otp = int(input("Enter OTP: "))
     if str(input_otp) == otp:
@@ -922,17 +922,17 @@ TYPE "I understand the implications of using this mode" (Case Sensitive) IN THE 
 
         while True:
             cmd = input("Enter SQL Query: ")
-            if cmd.startswith("SELECT"):
+            if cmd.upper().startswith("SELECT") or cmd.upper().startswith("SHOW"):
                 # Log the SQL Query, even if it doesn't run successfully
                 db.execute("INSERT INTO sudo_logs VALUES(%s, %s)", (cmd, datetime.datetime.now()))
                 cdb.commit()
                 db.execute(cmd)
-
+                
                 for i in db.fetchall():
                     print(i)
                     print()
             
-            elif cmd.startswith("CREATE") or cmd.startswith("UPDATE") or cmd.startswith("INSERT") or cmd.startswith("DELETE"):
+            elif cmd.upper().startswith("CREATE") or cmd.upper().startswith("UPDATE") or cmd.upper().startswith("INSERT") or cmd.upper().startswith("DELETE"):
                 # Log the SQL Query, even if it doesn't run successfully
                 db.execute("INSERT INTO sudo_logs VALUES(%s, %s)", (cmd, datetime.datetime.now()))
                 cdb.commit()
@@ -964,7 +964,7 @@ while True:
 
         otp = gen_otp()
         # Send an OTP to the concerned people to enter ADMIN mode
-        send_mail("tp.cs50test@gmail.com", "tahayaseen.p_uis@gemselearning.com", "Your Netflix Admin OTP",
+        send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP",
                   "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
         input_otp = int(input("Enter OTP: "))
         if str(input_otp) == otp:
