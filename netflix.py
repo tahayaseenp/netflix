@@ -105,9 +105,9 @@ except:
 GOOGLE_ACCOUNTS_BASE_URL = 'https://accounts.google.com'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
-GOOGLE_CLIENT_ID = '883495880858-3mkra8pcc1rrbqrj48f8sp5fbbr8kkk0.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = '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'
-GOOGLE_REFRESH_TOKEN = '1//03F6y-Qzjm-spCgYIARAAGAMSNwF-L9Ir2B0_oWLNdHFhkFnjXBwZE6evUOzoF9KEqCInmmzRh8xTWDZZcNCzI-yzilAwCA19FMQ'
+GOOGLE_CLIENT_ID = '240231485024-4robsujnfa4plv2gkt6anv8u6km078p7.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = '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'
+GOOGLE_REFRESH_TOKEN = '1//03ne3YSR8H7FqCgYIARAAGAMSNwF-L9Ir7H1IcM0ngAFkcWs-baiIjqW5ZSetztfcyjyUsmTmBlaVG5l9I4AOTVt01nIVCWyqWVg'
 
 # GMAIL + OAUTH2 IN PYTHON GLOBAL VARIABLES END
 
@@ -309,7 +309,7 @@ def add_content():  # Add content to the database
     vat = float(input("Enter content VAT: "))
     # Enter the record into the database only if all Actor ID's and Director ID exist
     db.execute("INSERT INTO content(netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)  VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-               (netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)) if rc1 == True and rc2 == True and rc3 == True and rc4 == True and rc5 == True else print("Record not added!")
+            (netflix_id, title, type, rating, release_year, actor1, actor2, actor3, actor4, director, category, imdb, runtime, description, language, price, vat)) if rc1 == True and rc2 == True and rc3 == True and rc4 == True and rc5 == True else print("Record not added!")
     cdb.commit()
     print("Content successfully added!")
 
@@ -338,7 +338,7 @@ def register_customer():  # Register a new customer
     password = getpass("Enter your password: ")  # Mask the password while it's being inputted
     passhash = pass_hasher(password)  # Hash the password
     db.execute("INSERT INTO customers (name, email, phone_number, username, country_code) VALUES(%s, %s, %s, %s, %s)",
-               (name, email, phone_number, username, ip_details.country))
+            (name, email, phone_number, username, ip_details.country))
     cdb.commit()
     db.execute("INSERT INTO auth VALUES(%s, %s)", (username, passhash))
     cdb.commit()
@@ -417,7 +417,7 @@ def edit_content():  # Edit existing content details
 
         else:
             print("No rating provided!")
-		
+        
     elif c == 4:
         release_year = input("Enter content release year: ")
 
@@ -435,7 +435,7 @@ def edit_content():  # Edit existing content details
         if actor1:
             rc = record_checker('actors', 'id', actor1)
             db.execute("UPDATE content SET actor1 = %s WHERE netflix_id = %s",
-                       (actor1, nid)) if rc == True else print("Record not added")
+                    (actor1, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Actor 1 changed successfully!")
 
@@ -448,7 +448,7 @@ def edit_content():  # Edit existing content details
         if actor2:
             rc = record_checker('actors', 'id', actor2)
             db.execute("UPDATE content SET actor2 = %s WHERE netflix_id = %s",
-                       (actor2, nid)) if rc == True else print("Record not added")
+                    (actor2, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Actor 2 changed successfully!")
 
@@ -461,7 +461,7 @@ def edit_content():  # Edit existing content details
         if actor3:
             rc = record_checker('actors', 'id', actor3)
             db.execute("UPDATE content SET actor3 = %s WHERE netflix_id = %s",
-                       (actor3, nid)) if rc == True else print("Record not added")
+                    (actor3, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Actor 3 changed successfully!")
 
@@ -474,7 +474,7 @@ def edit_content():  # Edit existing content details
         if actor4:
             rc = record_checker('actors', 'id', actor4)
             db.execute("UPDATE content SET actor4 = %s WHERE netflix_id = %s",
-                       (actor4, nid)) if rc == True else print("Record not added")
+                    (actor4, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Actor 4 changed successfully!")
 
@@ -487,7 +487,7 @@ def edit_content():  # Edit existing content details
         if director:
             rc = record_checker('directors', 'id', director)
             db.execute("UPDATE content SET director = %s WHERE netflix_id = %s",
-                       (director, nid)) if rc == True else print("Record not added")
+                    (director, nid)) if rc == True else print("Record not added")
             cdb.commit()
             print("Director changed successfully!")
 
@@ -886,7 +886,7 @@ def sudo_mode():  # SUDO MODE
     otp = gen_otp()
     # Send an OTP to the concerned people to enter SUDO MODE
     send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP",
-              "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
+            "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
     input_otp = int(input("Enter OTP: "))
     if str(input_otp) == otp:
         print("Access granted")
@@ -958,6 +958,13 @@ while True:
     elif ch == '2':
         register_customer()
 
+    elif ch == 'setgoogle':
+        if GOOGLE_REFRESH_TOKEN is None:
+            print('No refresh token found, obtaining one')
+            refresh_token, access_token, expires_in = get_authorization(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
+            print('Set the following as your GOOGLE_REFRESH_TOKEN:', refresh_token)
+            sys.exit(0)
+
     elif ch == 'admin':  # ADMIN MODE
         # USE THIS MODE TO ADD, EDIT OR DELETE CONTENT FROM THE DATABASE
         # THIS MODE IS NOT ACCESSIBLE TO NORMAL USERS AND IS HIDDEN FROM THE MENU
@@ -965,7 +972,7 @@ while True:
         otp = gen_otp()
         # Send an OTP to the concerned people to enter ADMIN mode
         send_mail("tp.cs50test@gmail.com", "tahayparker@gmail.com", "Your Netflix Admin OTP",
-                  "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
+                "Here's your Netflix Admin OTP<br>" + "<b>" + otp + "</b>" + "<br><b> DO NOT SHARE THIS CODE WITH ANYONE!</b>")
         input_otp = int(input("Enter OTP: "))
         if str(input_otp) == otp:
             print("Access granted")
@@ -1183,7 +1190,7 @@ while True:
             
             elif ch == 0:
                 continue
- 
+
         elif sch == '2':  # CART
             while True:
                 # Made using ANSI characters
